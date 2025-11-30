@@ -1,18 +1,29 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, TextAreaField, SelectField
-from wtforms.validators import DataRequired, Email, EqualTo, Length, ValidationError
+from wtforms.validators import DataRequired, Email, EqualTo, Length, ValidationError, Regexp
 from app.models import User
 
 class RegistrationForm(FlaskForm):
     username = StringField('Имя пользователя',
-                          validators=[DataRequired(message='Это поле обязательно'),
-                                      Length(min=3, max=64, message='Имя должно быть от 3 до 64 символов')])
+                          validators=[
+                              DataRequired(message='Это поле обязательно'),
+                              Length(min=3, max=64, message='Имя должно быть от 3 до 64 символов'),
+                              Regexp('^[A-Za-zА-Яа-я0-9_]+$',
+                                   message='Имя пользователя может содержать только буквы, цифры и подчеркивания')
+                          ])
     email = StringField('Email',
-                       validators=[DataRequired(message='Это поле обязательно'),
-                                   Email(message='Введите корректный email адрес')])
+                       validators=[
+                           DataRequired(message='Это поле обязательно'),
+                           Email(message='Введите корректный email адрес'),
+                           Length(max=120, message='Email не должен превышать 120 символов')
+                       ])
     password = PasswordField('Пароль',
-                            validators=[DataRequired(message='Это поле обязательно'),
-                                        Length(min=6, message='Пароль должен быть не менее 6 символов')])
+                            validators=[
+                                DataRequired(message='Это поле обязательно'),
+                                Length(min=8, message='Пароль должен быть не менее 8 символов'),
+                                Regexp('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)',
+                                     message='Пароль должен содержать хотя бы одну заглавную букву, одну строчную и одну цифру')
+                            ])
     confirm_password = PasswordField('Подтвердите пароль',
                                    validators=[DataRequired(message='Это поле обязательно'),
                                                EqualTo('password', message='Пароли должны совпадать')])
@@ -30,10 +41,15 @@ class RegistrationForm(FlaskForm):
 
 class LoginForm(FlaskForm):
     email = StringField('Email',
-                       validators=[DataRequired(message='Это поле обязательно'),
-                                   Email(message='Введите корректный email адрес')])
+                       validators=[
+                           DataRequired(message='Это поле обязательно'),
+                           Email(message='Введите корректный email адрес')
+                       ])
     password = PasswordField('Пароль',
-                            validators=[DataRequired(message='Это поле обязательно')])
+                            validators=[
+                                DataRequired(message='Это поле обязательно'),
+                                Length(min=1, message='Введите пароль')
+                            ])
     submit = SubmitField('Войти')
 
 class MoodForm(FlaskForm):

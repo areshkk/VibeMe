@@ -4,90 +4,131 @@ from app import db
 from app.forms import RegistrationForm, LoginForm, MoodForm
 from app.models import User, MoodEntry
 from datetime import datetime
+import logging
+
+# Настройка логирования
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 bp = Blueprint('main', __name__)
+
 
 @bp.route('/')
 def index():
     return render_template('index.html')
 
+
 @bp.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
         return redirect(url_for('main.dashboard'))
-    
+
     form = RegistrationForm()
     if form.validate_on_submit():
-        # Создаем нового пользователя
-        user = User(username=form.username.data, email=form.email.data)
-        user.set_password(form.password.data)
-        
-        # Сохраняем в базу данных
-        db.session.add(user)
-        db.session.commit()
-        
-        flash('🎉 Регистрация прошла успешно! Теперь вы можете войти в систему.', 'success')
-        return redirect(url_for('main.login'))
-    
+        try:
+            # Создаем нового пользователя
+            user = User(username=form.username.data, email=form.email.data)
+            user.set_password(form.password.data)
+
+            # Сохраняем в базу данных
+            db.session.add(user)
+            db.session.commit()
+
+            logger.info(f'New user registered: {user.username} ({user.email})')
+            flash('🎉 Регистрация прошла успешно! Теперь вы можете войти в систему.', 'success')
+            return redirect(url_for('main.login'))
+
+        except ValueError as e:
+            db.session.rollback()
+            flash(f'❌ Ошибка валидации: {str(e)}', 'danger')
+            logger.warning(f'Registration validation error: {str(e)}')
+
+        except Exception as e:
+            db.session.rollback()
+            flash('❌ Произошла ошибка при регистрации. Попробуйте еще раз.', 'danger')
+            logger.error(f'Registration error for {form.email.data}: {str(e)}')
+
     return render_template('register.html', form=form)
+
 
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('main.dashboard'))
-    
+
     form = LoginForm()
     if form.validate_on_submit():
-        # Ищем пользователя по email
-        user = User.query.filter_by(email=form.email.data).first()
-        
-        # Проверяем пароль
-        if user and user.check_password(form.password.data):
-            login_user(user, remember=True)
-            next_page = request.args.get('next')
-            flash(f'🌈 Добро пожаловать, {user.username}!', 'success')
-            return redirect(next_page) if next_page else redirect(url_for('main.dashboard'))
-        else:
-            flash('❌ Неверный email или пароль. Попробуйте еще раз.', 'danger')
-    
+        try:
+            # Ищем пользователя по email
+            user = User.query.filter_by(email=form.email.data.lower().strip()).first()
+
+            # Проверяем пароль
+            if user and user.check_password(form.password.data):
+                login_user(user, remember=True)
+                next_page = request.args.get('next')
+                logger.info(f'User logged in: {user.username}')
+                flash(f'🌈 Добро пожаловать, {user.username}!', 'success')
+                return redirect(next_page) if next_page else redirect(url_for('main.dashboard'))
+            else:
+                # Логируем неудачную попытку входа
+                logger.warning(f'Failed login attempt for email: {form.email.data}')
+                flash('❌ Неверный email или пароль. Попробуйте еще раз.', 'danger')
+
+        except Exception as e:
+            flash('❌ Произошла ошибка при входе. Попробуйте еще раз.', 'danger')
+            logger.error(f'Login error for {form.email.data}: {str(e)}')
+
     return render_template('login.html', form=form)
+
 
 @bp.route('/logout')
 @login_required
 def logout():
+    username = current_user.username
     logout_user()
+    logger.info(f'User logged out: {username}')
     flash('👋 Вы вышли из системы. Возвращайтесь скорее!', 'info')
     return redirect(url_for('main.index'))
+
 
 @bp.route('/dashboard')
 @login_required
 def dashboard():
     # Получаем последние записи настроения пользователя
-    recent_moods = MoodEntry.query.filter_by(user_id=current_user.id)\
-                                 .order_by(MoodEntry.timestamp.desc())\
-                                 .limit(5).all()
+    recent_moods = MoodEntry.query.filter_by(user_id=current_user.id) \
+        .order_by(MoodEntry.timestamp.desc()) \
+        .limit(5).all()
     return render_template('dashboard.html', recent_moods=recent_moods)
+
 
 @bp.route('/mood', methods=['GET', 'POST'])
 @login_required
 def mood_form():
     form = MoodForm()
     if form.validate_on_submit():
-        # Создаем новую запись настроения
-        mood_entry = MoodEntry(
-            mood=form.mood.data,
-            notes=form.notes.data,
-            author=current_user
-        )
-        
-        # Сохраняем в базу данных
-        db.session.add(mood_entry)
-        db.session.commit()
-        
-        flash('✅ Настроение успешно сохранено!', 'success')
-        return redirect(url_for('main.dashboard'))
-    
+        try:
+            # Создаем новую запись настроения
+            mood_entry = MoodEntry(
+                mood=form.mood.data,
+                notes=form.notes.data,
+                author=current_user
+            )
+
+            # Сохраняем в базу данных
+            db.session.add(mood_entry)
+            db.session.commit()
+
+            logger.info(f'Mood entry created by {current_user.username}: {mood_entry.mood}')
+            flash('✅ Настроение успешно сохранено!', 'success')
+            return redirect(url_for('main.dashboard'))
+
+        except Exception as e:
+            db.session.rollback()
+            flash('❌ Произошла ошибка при сохранении настроения.', 'danger')
+            logger.error(f'Mood entry error for {current_user.username}: {str(e)}')
+
     return render_template('mood_form.html', form=form)
+
 
 @bp.route('/profile')
 @login_required
