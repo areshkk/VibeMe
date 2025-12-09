@@ -11,26 +11,20 @@
                 <p class="text-center text-muted mb-4">Рады видеть вас снова</p>
                 
                 <form method="POST" action="">
-                    {{ form.hidden_tag() }}
-                    
                     <div class="mb-3">
-                        {{ form.email.label(class="form-label") }}
-                        {{ form.email(class="form-control") }}
-                        {% for error in form.email.errors %}
-                            <div class="text-danger small">{{ error }}</div>
-                        {% endfor %}
+                        <label for="email" class="form-label">Email адрес</label>
+                        <input type="email" class="form-control" id="email" name="email" required 
+                               placeholder="your@email.com">
                     </div>
                     
                     <div class="mb-4">
-                        {{ form.password.label(class="form-label") }}
-                        {{ form.password(class="form-control") }}
-                        {% for error in form.password.errors %}
-                            <div class="text-danger small">{{ error }}</div>
-                        {% endfor %}
+                        <label for="password" class="form-label">Пароль</label>
+                        <input type="password" class="form-control" id="password" name="password" required 
+                               placeholder="Введите ваш пароль">
                     </div>
                     
                     <div class="d-grid">
-                        {{ form.submit(class="btn btn-custom btn-lg") }}
+                        <button type="submit" class="btn btn-custom btn-lg">Войти в аккаунт</button>
                     </div>
                 </form>
                 
