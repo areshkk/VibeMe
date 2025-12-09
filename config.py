@@ -1,11 +1,18 @@
+# config.py
 import os
 from datetime import timedelta
+
+basedir = os.path.abspath(os.path.dirname(__file__))
 
 
 class Config:
     # Базовые настройки
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'your-secret-key-change-in-production-2024'
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///vibeme.db'
+
+    # Используем абсолютный путь к базе данных
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
+                              'sqlite:///' + os.path.join(basedir, 'vibeme.db')
+
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # Настройки безопасности
