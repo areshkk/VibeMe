@@ -11,91 +11,44 @@
                 <p class="text-center text-muted mb-4">Выбери эмоцию и поделись своими мыслями</p>
                 
                 <form method="POST" action="">
+                    {{ form.hidden_tag() }}
+                    
                     <!-- Emotion Selection -->
                     <div class="mb-4">
-                        <label class="form-label fw-bold mb-3">Выбери свое настроение:</label>
+                        {{ form.mood.label(class="form-label fw-bold mb-3") }}
                         <div class="row g-3">
+                            {% for value, label in form.mood.choices %}
                             <div class="col-4 col-sm-3">
-                                <input type="radio" class="btn-check mood-option" name="mood" id="happy" value="happy" autocomplete="off">
-                                <label class="btn btn-outline-success w-100 h-100 p-3" for="happy">
-                                    <div>😊</div>
-                                    <small>Счастлив</small>
+                                <input type="radio" class="btn-check mood-option" name="mood" 
+                                       id="mood_{{ value }}" value="{{ value }}" 
+                                       {% if form.mood.data == value %}checked{% endif %}>
+                                <label class="btn btn-outline-primary w-100 h-100 p-3" for="mood_{{ value }}">
+                                    <div>{{ label.split(' ')[0] }}</div>
+                                    <small>{{ ' '.join(label.split(' ')[1:]) }}</small>
                                 </label>
                             </div>
-                            <div class="col-4 col-sm-3">
-                                <input type="radio" class="btn-check mood-option" name="mood" id="calm" value="calm" autocomplete="off">
-                                <label class="btn btn-outline-info w-100 h-100 p-3" for="calm">
-                                    <div>😌</div>
-                                    <small>Спокоен</small>
-                                </label>
-                            </div>
-                            <div class="col-4 col-sm-3">
-                                <input type="radio" class="btn-check mood-option" name="mood" id="neutral" value="neutral" autocomplete="off">
-                                <label class="btn btn-outline-secondary w-100 h-100 p-3" for="neutral">
-                                    <div>😐</div>
-                                    <small>Нейтрален</small>
-                                </label>
-                            </div>
-                            <div class="col-4 col-sm-3">
-                                <input type="radio" class="btn-check mood-option" name="mood" id="sad" value="sad" autocomplete="off">
-                                <label class="btn btn-outline-warning w-100 h-100 p-3" for="sad">
-                                    <div>😔</div>
-                                    <small>Грустен</small>
-                                </label>
-                            </div>
-                            <div class="col-4 col-sm-3">
-                                <input type="radio" class="btn-check mood-option" name="mood" id="angry" value="angry" autocomplete="off">
-                                <label class="btn btn-outline-danger w-100 h-100 p-3" for="angry">
-                                    <div>😠</div>
-                                    <small>Сердит</small>
-                                </label>
-                            </div>
-                            <div class="col-4 col-sm-3">
-                                <input type="radio" class="btn-check mood-option" name="mood" id="anxious" value="anxious" autocomplete="off">
-                                <label class="btn btn-outline-dark w-100 h-100 p-3" for="anxious">
-                                    <div>😰</div>
-                                    <small>Тревожен</small>
-                                </label>
-                            </div>
-                            <div class="col-4 col-sm-3">
-                                <input type="radio" class="btn-check mood-option" name="mood" id="excited" value="excited" autocomplete="off">
-                                <label class="btn btn-outline-primary w-100 h-100 p-3" for="excited">
-                                    <div>🎉</div>
-                                    <small>В восторге</small>
-                                </label>
-                            </div>
-                            <div class="col-4 col-sm-3">
-                                <input type="radio" class="btn-check mood-option" name="mood" id="tired" value="tired" autocomplete="off">
-                                <label class="btn btn-outline-dark w-100 h-100 p-3" for="tired">
-                                    <div>😴</div>
-                                    <small>Устал</small>
-                                </label>
-                            </div>
+                            {% endfor %}
                         </div>
+                        {% for error in form.mood.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                        {% endfor %}
                     </div>
                     
                     <!-- Notes Field -->
                     <div class="mb-4">
-                        <label for="notes" class="form-label fw-bold">Хочешь поделиться мыслями?</label>
-                        <textarea class="form-control" id="notes" name="notes" rows="4" 
-                                  placeholder="Расскажи о своем дне, что повлияло на твое настроение, или просто поделись мыслями..."></textarea>
+                        {{ form.notes.label(class="form-label fw-bold") }}
+                        {{ form.notes(class="form-control", rows="4", 
+                                    placeholder="Расскажи о своем дне, что повлияло на твое настроение, или просто поделись мыслями...") }}
+                        {% for error in form.notes.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                        {% endfor %}
                     </div>
                     
                     <!-- Submit Button -->
                     <div class="d-grid">
-                        <button type="submit" class="btn btn-custom btn-lg">
-                            💾 Сохранить настроение
-                        </button>
+                        {{ form.submit(class="btn btn-custom btn-lg") }}
                     </div>
                 </form>
-            </div>
-        </div>
-        
-        <!-- Quick Stats -->
-        <div class="card card-custom mt-4">
-            <div class="card-body text-center">
-                <h5>Твоя эмоциональная неделя</h5>
-                <p class="text-muted">Скоро здесь появится твоя персональная статистика!</p>
             </div>
         </div>
     </div>

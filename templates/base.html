@@ -87,12 +87,27 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('main.index') }}">🏠 Главная</a>
                     </li>
+                    {% if current_user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.dashboard') }}">📊 Панель управления</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.mood_form') }}">🎭 Настроение</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.profile') }}">👤 {{ current_user.username }}</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.logout') }}">🚪 Выйти</a>
+                    </li>
+                    {% else %}
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('main.login') }}">🔑 Войти</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('main.register') }}">✨ Зарегистрироваться</a>
                     </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>

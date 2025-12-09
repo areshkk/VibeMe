@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Профиль - VibeMe{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card card-custom">
+            <div class="card-body">
+                <h2 class="text-center mb-4">👤 Ваш профиль</h2>
+                
+                <div class="mb-4">
+                    <h5>Информация о пользователе</h5>
+                    <p><strong>Имя пользователя:</strong> {{ user.username }}</p>
+                    <p><strong>Email:</strong> {{ user.email }}</p>
+                    <p><strong>Дата регистрации:</strong> {{ user.created_at.strftime('%d.%m.%Y') }}</p>
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('main.dashboard') }}" class="btn btn-custom">Вернуться в панель управления</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

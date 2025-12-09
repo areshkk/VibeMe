@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Панель управления - VibeMe{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card card-custom">
+            <div class="card-body">
+                <h2 class="mb-4">🌈 Добро пожаловать, {{ current_user.username }}!</h2>
+                <p class="lead">Как ты себя чувствуешь сегодня?</p>
+                
+                <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4">
+                    <a href="{{ url_for('main.mood_form') }}" class="btn btn-custom btn-lg">
+                        📝 Зафиксировать настроение
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Последние записи настроения -->
+        <div class="card card-custom mt-4">
+            <div class="card-body">
+                <h4 class="mb-3">📋 Последние записи</h4>
+                {% if recent_moods %}
+                    <div class="list-group">
+                        {% for mood in recent_moods %}
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">
+                                    {% if mood.mood == 'happy' %}😊 Счастлив
+                                    {% elif mood.mood == 'calm' %}😌 Спокоен
+                                    {% elif mood.mood == 'neutral' %}😐 Нейтрален
+                                    {% elif mood.mood == 'sad' %}😔 Грустен
+                                    {% elif mood.mood == 'angry' %}😠 Сердит
+                                    {% elif mood.mood == 'anxious' %}😰 Тревожен
+                                    {% elif mood.mood == 'excited' %}🎉 В восторге
+                                    {% elif mood.mood == 'tired' %}😴 Устал
+                                    {% else %}{{ mood.mood }}{% endif %}
+                                </h6>
+                                <small class="text-muted">{{ mood.timestamp.strftime('%d.%m.%Y %H:%M') }}</small>
+                            </div>
+                            {% if mood.notes %}
+                            <p class="mb-1">{{ mood.notes }}</p>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">У вас пока нет записей настроения.</p>
+                    <a href="{{ url_for('main.mood_form') }}" class="btn btn-custom">Создать первую запись</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card card-custom">
+            <div class="card-body text-center">
+                <h5>📊 Статистика</h5>
+                <p class="text-muted">Скоро здесь появится ваша персональная статистика настроения!</p>
+            </div>
+        </div>
+        
+        <div class="card card-custom mt-4">
+            <div class="card-body text-center">
+                <h5>👤 Профиль</h5>
+                <p><strong>{{ current_user.username }}</strong></p>
+                <p class="text-muted">{{ current_user.email }}</p>
+                <a href="{{ url_for('main.profile') }}" class="btn btn-outline-secondary btn-sm">Редактировать профиль</a>
+                <a href="{{ url_for('main.logout') }}" class="btn btn-outline-danger btn-sm mt-2">Выйти</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

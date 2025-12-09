@@ -11,32 +11,42 @@
                 <p class="text-center text-muted mb-4">Присоединяйтесь к нашему сообществу</p>
                 
                 <form method="POST" action="">
+                    {{ form.hidden_tag() }}
+                    
                     <div class="mb-3">
-                        <label for="username" class="form-label">Имя пользователя</label>
-                        <input type="text" class="form-control" id="username" name="username" required 
-                               placeholder="Придумайте уникальное имя">
+                        {{ form.username.label(class="form-label") }}
+                        {{ form.username(class="form-control") }}
+                        {% for error in form.username.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                        {% endfor %}
                     </div>
                     
                     <div class="mb-3">
-                        <label for="email" class="form-label">Email адрес</label>
-                        <input type="email" class="form-control" id="email" name="email" required 
-                               placeholder="your@email.com">
+                        {{ form.email.label(class="form-label") }}
+                        {{ form.email(class="form-control") }}
+                        {% for error in form.email.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                        {% endfor %}
                     </div>
                     
                     <div class="mb-3">
-                        <label for="password" class="form-label">Пароль</label>
-                        <input type="password" class="form-control" id="password" name="password" required 
-                               placeholder="Не менее 6 символов">
+                        {{ form.password.label(class="form-label") }}
+                        {{ form.password(class="form-control") }}
+                        {% for error in form.password.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                        {% endfor %}
                     </div>
                     
                     <div class="mb-4">
-                        <label for="confirm_password" class="form-label">Подтвердите пароль</label>
-                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" required 
-                               placeholder="Повторите пароль">
+                        {{ form.confirm_password.label(class="form-label") }}
+                        {{ form.confirm_password(class="form-control") }}
+                        {% for error in form.confirm_password.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                        {% endfor %}
                     </div>
                     
                     <div class="d-grid">
-                        <button type="submit" class="btn btn-custom btn-lg">Создать аккаунт</button>
+                        {{ form.submit(class="btn btn-custom btn-lg") }}
                     </div>
                 </form>
                 
