@@ -134,3 +134,83 @@ def mood_form():
 @login_required
 def profile():
     return render_template('profile.html', user=current_user)
+
+
+@bp.route('/stats')
+@login_required
+def stats():
+    try:
+        # Получаем все записи настроения пользователя
+        mood_entries = MoodEntry.query.filter_by(
+            user_id=current_user.id
+        ).order_by(MoodEntry.timestamp.asc()).all()
+
+        # Подготавливаем данные для графика
+        mood_data = {
+            'happy': 0,
+            'calm': 0,
+            'neutral': 0,
+            'sad': 0,
+            'angry': 0,
+            'anxious': 0,
+            'excited': 0,
+            'tired': 0
+        }
+
+        # Считаем количество каждого настроения
+        for entry in mood_entries:
+            if entry.mood in mood_data:
+                mood_data[entry.mood] += 1
+
+        # Подготавливаем данные для линейного графика по времени
+        timeline_data = []
+        for entry in mood_entries:
+            timeline_data.append({
+                'date': entry.timestamp.strftime('%Y-%m-%d'),
+                'mood': entry.mood,
+                'timestamp': entry.timestamp.isoformat(),
+                'notes': entry.notes if entry.notes else ''
+            })
+
+        # Подготавливаем данные для круговой диаграммы
+        chart_labels = list(mood_data.keys())
+        chart_data = list(mood_data.values())
+
+        # Преобразуем ключи настроения в читаемые названия
+        mood_translation = {
+            'happy': '😊 Счастлив',
+            'calm': '😌 Спокоен',
+            'neutral': '😐 Нейтрален',
+            'sad': '😔 Грустен',
+            'angry': '😠 Сердит',
+            'anxious': '😰 Тревожен',
+            'excited': '🎉 В восторге',
+            'tired': '😴 Устал'
+        }
+
+        chart_labels_readable = [mood_translation.get(label, label) for label in chart_labels]
+
+        # Подсчитываем общее количество записей
+        total_entries = len(mood_entries)
+
+        # Определяем самое частое настроение
+        most_common_mood = max(mood_data, key=mood_data.get) if total_entries > 0 else None
+        most_common_mood_readable = mood_translation.get(most_common_mood,
+                                                         most_common_mood) if most_common_mood else None
+
+        logger.info(f'Statistics loaded for user {current_user.username}: {total_entries} entries')
+
+        return render_template(
+            'stats.html',
+            chart_labels=chart_labels_readable,
+            chart_data=chart_data,
+            timeline_data=timeline_data,
+            total_entries=total_entries,
+            most_common_mood=most_common_mood_readable,
+            mood_entries=mood_entries[-10:] if mood_entries else []  # Последние 10 записей для таблицы
+        )
+
+    except Exception as e:
+        logger.error(f'Error loading stats for {current_user.username}: {str(e)}')
+        flash('❌ Произошла ошибка при загрузке статистики', 'danger')
+        return redirect(url_for('main.dashboard'))
