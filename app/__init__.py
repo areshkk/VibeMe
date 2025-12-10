@@ -26,6 +26,15 @@ def create_app():
     login_manager.login_message = 'Пожалуйста, войдите для доступа к этой странице.'
     login_manager.login_message_category = 'info'
 
+    # Создаем таблицы при запуске
+    with app.app_context():
+        from app.models import User, MoodEntry, Recommendation
+        db.create_all()
+
+        # Инициализируем рекомендации при первом запуске
+        from app.recommendations_utils import RecommendationsManager
+        RecommendationsManager.initialize_default_recommendations()
+
     from app import routes
     app.register_blueprint(routes.bp)
 

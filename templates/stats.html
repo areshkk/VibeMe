@@ -41,6 +41,33 @@
     </div>
 </div>
 
+<!-- Рекомендации для самого частого настроения -->
+{% if common_mood_recommendations and most_common_mood %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card card-custom mb-4">
+            <div class="card-body">
+                <h4 class="mb-3">💡 Рекомендации для вашего частого настроения "{{ most_common_mood }}"</h4>
+                <div class="row">
+                    {% for advice in common_mood_recommendations %}
+                    <div class="col-md-4 mb-2">
+                        <div class="card recommendation-card-sm">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    <div class="recommendation-icon me-2">💡</div>
+                                    <div>{{ advice }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 <div class="row">
     <!-- Круговая диаграмма -->
     <div class="col-md-6">
@@ -53,7 +80,7 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Линейный график -->
     <div class="col-md-6">
         <div class="card card-custom mb-4">
@@ -119,6 +146,28 @@
         <a href="{{ url_for('main.dashboard') }}" class="btn btn-custom">← Назад в панель управления</a>
     </div>
 </div>
+
+<style>
+.chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+}
+.table th {
+    background-color: var(--light-pink);
+    border-top: none;
+}
+.recommendation-card-sm {
+    border-left: 3px solid var(--soft-purple);
+    height: 100%;
+}
+.recommendation-card-sm:hover {
+    background-color: rgba(177, 156, 217, 0.1);
+}
+.recommendation-icon {
+    font-size: 1.2rem;
+}
+</style>
 {% endblock %}
 
 {% block scripts %}
@@ -192,7 +241,7 @@ if (timelineData.length > 0) {
                 count: 0
             };
         }
-        
+
         // Преобразуем настроение в числовое значение для графика
         const moodValues = {
             'happy': 1,
@@ -204,11 +253,11 @@ if (timelineData.length > 0) {
             'anxious': 7,
             'angry': 8
         };
-        
+
         groupedData[entry.date].moods.push(moodValues[entry.mood] || 4);
         groupedData[entry.date].count++;
     });
-    
+
     // Подготавливаем данные для графика
     const timelineLabels = Object.keys(groupedData);
     const timelineAverages = timelineLabels.map(date => {
@@ -216,7 +265,7 @@ if (timelineData.length > 0) {
         const sum = moods.reduce((a, b) => a + b, 0);
         return sum / moods.length;
     });
-    
+
     // Настраиваем шкалу Y с названиями настроений
     const moodScaleLabels = {
         1: '😊 Счастлив',
@@ -228,7 +277,7 @@ if (timelineData.length > 0) {
         7: '😰 Тревожен',
         8: '😠 Сердит'
     };
-    
+
     const timelineCtx = document.getElementById('moodTimelineChart').getContext('2d');
     const timelineChart = new Chart(timelineCtx, {
         type: 'line',
@@ -274,7 +323,7 @@ if (timelineData.length > 0) {
                     callbacks: {
                         label: function(context) {
                             const value = context.raw;
-                            const mood = Object.keys(moodScaleLabels).find(key => 
+                            const mood = Object.keys(moodScaleLabels).find(key =>
                                 Math.abs(value - key) < 0.5
                             );
                             return `Настроение: ${moodScaleLabels[mood] || 'Неизвестно'}`;
@@ -285,20 +334,8 @@ if (timelineData.length > 0) {
         }
     });
 } else {
-    document.getElementById('moodTimelineChart').parentElement.innerHTML = 
+    document.getElementById('moodTimelineChart').parentElement.innerHTML =
         '<p class="text-muted">Недостаточно данных для построения графика. Добавьте больше записей!</p>';
 }
 </script>
-
-<style>
-.chart-container {
-    position: relative;
-    height: 300px;
-    width: 100%;
-}
-.table th {
-    background-color: var(--light-pink);
-    border-top: none;
-}
-</style>
 {% endblock %}
