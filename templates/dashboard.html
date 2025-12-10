@@ -14,6 +14,9 @@
                     <a href="{{ url_for('main.mood_form') }}" class="btn btn-custom btn-lg">
                         📝 Зафиксировать настроение
                     </a>
+                    <a href="{{ url_for('main.stats') }}" class="btn btn-outline-secondary btn-lg">
+                        📈 Посмотреть статистику
+                    </a>
                 </div>
             </div>
         </div>
@@ -53,12 +56,15 @@
             </div>
         </div>
     </div>
-    
+
     <div class="col-md-4">
         <div class="card card-custom">
             <div class="card-body text-center">
-                <h5>📊 Статистика</h5>
-                <p class="text-muted">Скоро здесь появится ваша персональная статистика настроения!</p>
+                <h5>📊 Быстрый доступ</h5>
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('main.stats') }}" class="btn btn-custom">Статистика настроения</a>
+                    <a href="{{ url_for('main.mood_form') }}" class="btn btn-outline-secondary">Новая запись</a>
+                </div>
             </div>
         </div>
         
