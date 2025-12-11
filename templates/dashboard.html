@@ -14,9 +14,54 @@
                     <a href="{{ url_for('main.mood_form') }}" class="btn btn-custom btn-lg">
                         📝 Зафиксировать настроение
                     </a>
+                    <a href="{{ url_for('main.stats') }}" class="btn btn-outline-secondary btn-lg">
+                        📈 Посмотреть статистику
+                    </a>
                 </div>
             </div>
         </div>
+
+        <!-- Рекомендации на основе последнего настроения -->
+        {% if last_mood and recommendations %}
+        <div class="card card-custom mt-4">
+            <div class="card-body">
+                <h4 class="mb-3">💡 Персональные рекомендации</h4>
+                <p class="text-muted mb-3">
+                    На основе вашего последнего настроения:
+                    {% if last_mood.mood == 'happy' %}😊 Счастлив
+                    {% elif last_mood.mood == 'calm' %}😌 Спокоен
+                    {% elif last_mood.mood == 'neutral' %}😐 Нейтрален
+                    {% elif last_mood.mood == 'sad' %}😔 Грустен
+                    {% elif last_mood.mood == 'angry' %}😠 Сердит
+                    {% elif last_mood.mood == 'anxious' %}😰 Тревожен
+                    {% elif last_mood.mood == 'excited' %}🎉 В восторге
+                    {% elif last_mood.mood == 'tired' %}😴 Устал
+                    {% else %}{{ last_mood.mood }}{% endif %}
+                </p>
+
+                <div class="row">
+                    {% for advice in recommendations %}
+                    <div class="col-md-6 mb-2">
+                        <div class="card bg-light">
+                            <div class="card-body py-2">
+                                <div class="d-flex align-items-center">
+                                    <div class="me-3">✅</div>
+                                    <div>{{ advice }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="text-center mt-3">
+                    <a href="{{ url_for('main.recommendations_page') }}" class="btn btn-outline-primary btn-sm">
+                        Посмотреть все рекомендации
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
 
         <!-- Последние записи настроения -->
         <div class="card card-custom mt-4">
@@ -53,12 +98,16 @@
             </div>
         </div>
     </div>
-    
+
     <div class="col-md-4">
         <div class="card card-custom">
             <div class="card-body text-center">
-                <h5>📊 Статистика</h5>
-                <p class="text-muted">Скоро здесь появится ваша персональная статистика настроения!</p>
+                <h5>📊 Быстрый доступ</h5>
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('main.stats') }}" class="btn btn-custom">Статистика настроения</a>
+                    <a href="{{ url_for('main.mood_form') }}" class="btn btn-outline-secondary">Новая запись</a>
+                    <a href="{{ url_for('main.recommendations_page') }}" class="btn btn-outline-primary">Все рекомендации</a>
+                </div>
             </div>
         </div>
         

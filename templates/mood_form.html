@@ -49,8 +49,57 @@
                         {{ form.submit(class="btn btn-custom btn-lg") }}
                     </div>
                 </form>
+
+                <!-- Рекомендации после сохранения -->
+                {% if show_recommendations and recommendations %}
+                <div class="mt-5 pt-4 border-top">
+                    <h4 class="text-center mb-4">💡 Рекомендации для настроения "{{ saved_mood }}"</h4>
+                    <p class="text-center text-muted mb-4">Вот что может помочь:</p>
+
+                    <div class="row">
+                        {% for advice in recommendations %}
+                        <div class="col-md-6 mb-3">
+                            <div class="card recommendation-card">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="recommendation-number me-3">{{ loop.index }}</div>
+                                        <div>{{ advice }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <a href="{{ url_for('main.dashboard') }}" class="btn btn-custom me-2">Перейти в панель управления</a>
+                        <a href="{{ url_for('main.mood_form') }}" class="btn btn-outline-secondary">Добавить еще одно настроение</a>
+                    </div>
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>
 </div>
+
+<style>
+.recommendation-card {
+    border-left: 4px solid var(--deep-lavender);
+    transition: transform 0.2s;
+}
+.recommendation-card:hover {
+    transform: translateY(-2px);
+}
+.recommendation-number {
+    background: var(--deep-lavender);
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+</style>
 {% endblock %}
