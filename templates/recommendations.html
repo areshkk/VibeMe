@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}Рекомендации - VibeMe{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card card-custom">
+            <div class="card-body">
+                <h2 class="mb-4">💡 Рекомендации по настроениям</h2>
+                <p class="text-muted mb-4">
+                    Здесь собраны рекомендации для различных эмоциональных состояний. 
+                    Используйте их, чтобы улучшить свое настроение и самочувствие.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% for mood, recommendations in all_recommendations.items() %}
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card card-custom">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    {% if mood == 'happy' %}
+                    <div class="mood-icon-large me-3">😊</div>
+                    <h4 class="mb-0">Счастлив</h4>
+                    {% elif mood == 'calm' %}
+                    <div class="mood-icon-large me-3">😌</div>
+                    <h4 class="mb-0">Спокоен</h4>
+                    {% elif mood == 'neutral' %}
+                    <div class="mood-icon-large me-3">😐</div>
+                    <h4 class="mb-0">Нейтрален</h4>
+                    {% elif mood == 'sad' %}
+                    <div class="mood-icon-large me-3">😔</div>
+                    <h4 class="mb-0">Грустен</h4>
+                    {% elif mood == 'angry' %}
+                    <div class="mood-icon-large me-3">😠</div>
+                    <h4 class="mb-0">Сердит</h4>
+                    {% elif mood == 'anxious' %}
+                    <div class="mood-icon-large me-3">😰</div>
+                    <h4 class="mb-0">Тревожен</h4>
+                    {% elif mood == 'excited' %}
+                    <div class="mood-icon-large me-3">🎉</div>
+                    <h4 class="mb-0">В восторге</h4>
+                    {% elif mood == 'tired' %}
+                    <div class="mood-icon-large me-3">😴</div>
+                    <h4 class="mb-0">Устал</h4>
+                    {% else %}
+                    <div class="mood-icon-large me-3">🎭</div>
+                    <h4 class="mb-0">{{ mood }}</h4>
+                    {% endif %}
+                </div>
+                
+                <div class="row">
+                    {% for advice in recommendations %}
+                    <div class="col-md-6 mb-3">
+                        <div class="card recommendation-card-full">
+                            <div class="card-body">
+                                <div class="d-flex">
+                                    <div class="recommendation-bullet me-3">•</div>
+                                    <div>{{ advice }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<!-- Кнопка возврата -->
+<div class="row mt-4">
+    <div class="col-md-12 text-center">
+        <a href="{{ url_for('main.dashboard') }}" class="btn btn-custom">← Назад в панель управления</a>
+    </div>
+</div>
+
+<style>
+.mood-icon-large {
+    font-size: 2.5rem;
+}
+.recommendation-card-full {
+    border: 1px solid var(--lavender);
+    transition: all 0.3s ease;
+    height: 100%;
+}
+.recommendation-card-full:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(177, 156, 217, 0.2);
+}
+.recommendation-bullet {
+    color: var(--deep-lavender);
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+</style>
+{% endblock %}

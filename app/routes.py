@@ -1,10 +1,13 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify, Response
 from flask_login import login_user, logout_user, login_required, current_user
 from app import db
 from app.forms import RegistrationForm, LoginForm, MoodForm
-from app.models import User, MoodEntry
+from app.models import User, MoodEntry, Recommendation
+from app.recommendations_utils import RecommendationsManager
 from datetime import datetime
 import logging
+import csv
+from io import StringIO
 
 # Настройка логирования
 logging.basicConfig(level=logging.INFO)
@@ -98,13 +101,26 @@ def dashboard():
     recent_moods = MoodEntry.query.filter_by(user_id=current_user.id) \
         .order_by(MoodEntry.timestamp.desc()) \
         .limit(5).all()
-    return render_template('dashboard.html', recent_moods=recent_moods)
+
+    # Получаем последнее настроение для рекомендаций
+    last_mood = None
+    recommendations = []
+    if recent_moods:
+        last_mood = recent_moods[0]
+        recommendations = RecommendationsManager.get_recommendations_for_mood(last_mood.mood)
+
+    return render_template('dashboard.html',
+                           recent_moods=recent_moods,
+                           last_mood=last_mood,
+                           recommendations=recommendations)
 
 
 @bp.route('/mood', methods=['GET', 'POST'])
 @login_required
 def mood_form():
     form = MoodForm()
+
+    # Если форма отправлена и валидна
     if form.validate_on_submit():
         try:
             # Создаем новую запись настроения
@@ -119,15 +135,41 @@ def mood_form():
             db.session.commit()
 
             logger.info(f'Mood entry created by {current_user.username}: {mood_entry.mood}')
-            flash('✅ Настроение успешно сохранено!', 'success')
-            return redirect(url_for('main.dashboard'))
+
+            # Получаем рекомендации для сохраненного настроения
+            recommendations = RecommendationsManager.get_recommendations_for_mood(form.mood.data)
+
+            # Создаем читаемое название настроения
+            mood_translation = {
+                'happy': '😊 Счастлив',
+                'calm': '😌 Спокоен',
+                'neutral': '😐 Нейтрален',
+                'sad': '😔 Грустен',
+                'angry': '😠 Сердит',
+                'anxious': '😰 Тревожен',
+                'excited': '🎉 В восторге',
+                'tired': '😴 Устал'
+            }
+            mood_display = mood_translation.get(form.mood.data, form.mood.data)
+
+            flash(f'✅ Настроение "{mood_display}" успешно сохранено!', 'success')
+
+            # Рендерим шаблон с рекомендациями
+            return render_template('mood_form.html',
+                                   form=MoodForm(),  # Новая пустая форма
+                                   show_recommendations=True,
+                                   recommendations=recommendations,
+                                   saved_mood=mood_display)
 
         except Exception as e:
             db.session.rollback()
             flash('❌ Произошла ошибка при сохранении настроения.', 'danger')
             logger.error(f'Mood entry error for {current_user.username}: {str(e)}')
 
-    return render_template('mood_form.html', form=form)
+    # Для GET запроса или если форма не валидна
+    return render_template('mood_form.html',
+                           form=form,
+                           show_recommendations=False)
 
 
 @bp.route('/profile')
@@ -200,6 +242,11 @@ def stats():
 
         logger.info(f'Statistics loaded for user {current_user.username}: {total_entries} entries')
 
+        # Получаем рекомендации для самого частого настроения
+        common_mood_recommendations = []
+        if most_common_mood:
+            common_mood_recommendations = RecommendationsManager.get_recommendations_for_mood(most_common_mood, limit=5)
+
         return render_template(
             'stats.html',
             chart_labels=chart_labels_readable,
@@ -207,10 +254,44 @@ def stats():
             timeline_data=timeline_data,
             total_entries=total_entries,
             most_common_mood=most_common_mood_readable,
-            mood_entries=mood_entries[-10:] if mood_entries else []  # Последние 10 записей для таблицы
+            mood_entries=mood_entries[-10:] if mood_entries else [],  # Последние 10 записей для таблицы
+            common_mood_recommendations=common_mood_recommendations
         )
 
     except Exception as e:
         logger.error(f'Error loading stats for {current_user.username}: {str(e)}')
         flash('❌ Произошла ошибка при загрузке статистики', 'danger')
         return redirect(url_for('main.dashboard'))
+
+
+@bp.route('/api/recommendations/<mood>')
+@login_required
+def get_recommendations(mood):
+    """API для получения рекомендаций по настроению"""
+    try:
+        recommendations = RecommendationsManager.get_recommendations_for_mood(mood)
+        return jsonify({
+            'success': True,
+            'mood': mood,
+            'recommendations': recommendations
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@bp.route('/recommendations')
+@login_required
+def recommendations_page():
+    """Страница со всеми рекомендациями"""
+    # Получаем все настроения с их рекомендациями
+    all_recommendations = {}
+    moods = RecommendationsManager.get_all_moods_with_recommendations()
+
+    for mood in moods:
+        all_recommendations[mood] = RecommendationsManager.get_recommendations_for_mood(mood, limit=10)
+
+    return render_template('recommendations.html',
+                           all_recommendations=all_recommendations)
