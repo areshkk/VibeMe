@@ -23,7 +23,7 @@ with app.app_context():
 
         # Создаем все таблицы, если их нет
         db.create_all()
-        print("✅ База данных проверена/создана")
+        print("✅ База данных проверена")
 
         # Проверяем, какие таблицы созданы
         from sqlalchemy import inspect
