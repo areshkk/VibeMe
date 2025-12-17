@@ -351,10 +351,15 @@ if PREDICTIONS_AVAILABLE:
             # Получаем случайное предсказание
             prediction_obj, category_name = PredictionsManager.get_random_prediction()
 
-            # Если предсказаний нет в базе, инициализируем их
+            # Если предсказаний нет в базе, пробуем инициализировать
             if not prediction_obj:
-                PredictionsManager.initialize_default_predictions()
-                prediction_obj, category_name = PredictionsManager.get_random_prediction()
+                try:
+                    PredictionsManager.initialize_default_predictions()
+                    prediction_obj, category_name = PredictionsManager.get_random_prediction()
+                except Exception as e:
+                    logger.error(f"Failed to initialize predictions: {str(e)}")
+                    flash('❌ Не удалось загрузить предсказания. Попробуйте позже.', 'danger')
+                    return redirect(url_for('main.dashboard'))
 
             # Получаем все категории для фильтра
             all_categories = PredictionsManager.get_all_categories()
