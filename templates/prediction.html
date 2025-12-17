@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}Предсказание дня - VibeMe{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card card-custom">
+            <div class="card-body p-5 text-center">
+                <h2 class="mb-4">🔮 Предсказание дня</h2>
+                <p class="text-muted mb-4">Получите свое предсказание на сегодня!</p>
+                
+                <!-- Кнопка получения предсказания -->
+                <div class="mb-5">
+                    <a href="{{ url_for('main.prediction') }}" class="btn btn-custom btn-lg">
+                        🎲 Получить предсказание
+                    </a>
+                    <p class="text-muted mt-2">
+                        Нажмите на кнопку, чтобы получить случайное предсказание
+                    </p>
+                </div>
+                
+                <!-- Отображение предсказания -->
+                {% if prediction %}
+                <div class="prediction-card mb-5">
+                    <div class="category-badge mb-3">
+                        <span class="badge bg-purple">{{ category_name }}</span>
+                    </div>
+                    
+                    <div class="prediction-text mb-4">
+                        "{{ prediction.text }}"
+                    </div>
+                    
+                    <div class="prediction-actions mt-4">
+                        <button onclick="copyPrediction()" class="btn btn-outline-secondary btn-sm">
+                            📋 Копировать
+                        </button>
+                        <button onclick="sharePrediction()" class="btn btn-outline-primary btn-sm ms-2">
+                            📤 Поделиться
+                        </button>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Фильтр по категориям -->
+                <div class="mb-5">
+                    <h5 class="mb-3">🎯 Выберите категорию</h5>
+                    <div class="row g-2">
+                        {% for key, value in all_categories.items() %}
+                        <div class="col-6 col-md-4 col-lg-3">
+                            <a href="{{ url_for('main.prediction_by_category', category=key) }}" 
+                               class="btn btn-outline-secondary w-100 {% if selected_category == key %}active{% endif %}">
+                                {{ value }}
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <!-- Информация о предсказаниях -->
+                <div class="row text-center">
+                    <div class="col-md-4 mb-3">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h5>{{ all_categories|length }}</h5>
+                                <p class="text-muted mb-0">Категорий</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h5>∞</h5>
+                                <p class="text-muted mb-0">Попыток в день</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h5>🎲</h5>
+                                <p class="text-muted mb-0">Случайный выбор</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function copyPrediction() {
+    const predictionText = document.querySelector('.prediction-text').textContent;
+    navigator.clipboard.writeText(predictionText).then(() => {
+        alert('Предсказание скопировано в буфер обмена!');
+    }).catch(err => {
+        console.error('Ошибка копирования: ', err);
+    });
+}
+
+function sharePrediction() {
+    const predictionText = document.querySelector('.prediction-text').textContent;
+    const shareText = `Мое предсказание на сегодня: ${predictionText} #VibeMe`;
+    
+    if (navigator.share) {
+        navigator.share({
+            title: 'Мое предсказание на сегодня',
+            text: shareText,
+            url: window.location.href
+        });
+    } else {
+        navigator.clipboard.writeText(shareText).then(() => {
+            alert('Предсказание скопировано для отправки!');
+        }).catch(err => {
+            console.error('Ошибка копирования: ', err);
+        });
+    }
+}
+</script>
+{% endblock %}

@@ -70,6 +70,24 @@
             padding: 3rem;
             margin: 2rem 0;
         }
+
+        /* Стили для страницы предсказаний */
+        .prediction-card {
+            background: linear-gradient(135deg, rgba(248, 187, 217, 0.1) 0%, rgba(177, 156, 217, 0.1) 100%);
+            border-radius: 20px;
+            padding: 2.5rem;
+            border: 2px dashed var(--deep-lavender);
+        }
+        .prediction-text {
+            font-family: 'Georgia', serif;
+            line-height: 1.6;
+            color: #333;
+            font-size: 1.8rem;
+        }
+        .bg-purple {
+            background-color: var(--deep-lavender) !important;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -98,7 +116,7 @@
                         <a class="nav-link" href="{{ url_for('main.stats') }}">📈 Статистика</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.recommendations_page') }}">💡 Рекомендации</a>
+                        <a class="nav-link" href="{{ url_for('main.prediction') }}">🔮 Предсказание</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('main.profile') }}">👤 {{ current_user.username }}</a>

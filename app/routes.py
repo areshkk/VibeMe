@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify, Response
+from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
 from flask_login import login_user, logout_user, login_required, current_user
 from app import db
 from app.forms import RegistrationForm, LoginForm, MoodForm
@@ -9,11 +9,38 @@ import logging
 import csv
 from io import StringIO
 
+# В начале файла, после импортов, добавьте:
+try:
+    from app.predictions_utils import PredictionsManager
+    PREDICTIONS_AVAILABLE = True
+except ImportError:
+    PREDICTIONS_AVAILABLE = False
+    print("⚠️ Модуль predictions_utils не найден")
+    PredictionsManager = None  # Для избежания ошибок
+
 # Настройка логирования
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 bp = Blueprint('main', __name__)
+
+# Импортируем менеджер предсказаний
+try:
+    from app.predictions_utils import PredictionsManager
+
+    PREDICTIONS_AVAILABLE = True
+except ImportError:
+    PREDICTIONS_AVAILABLE = False
+    print("⚠️ Модуль predictions_utils не найден")
+
+# Импортируем менеджер рекомендаций (если есть)
+try:
+    from app.recommendations_utils import RecommendationsManager
+
+    RECOMMENDATIONS_AVAILABLE = True
+except ImportError:
+    RECOMMENDATIONS_AVAILABLE = False
+    print("⚠️ Модуль recommendations_utils не найден")
 
 
 @bp.route('/')
@@ -105,7 +132,8 @@ def dashboard():
     # Получаем последнее настроение для рекомендаций
     last_mood = None
     recommendations = []
-    if recent_moods:
+
+    if RECOMMENDATIONS_AVAILABLE and recent_moods:
         last_mood = recent_moods[0]
         recommendations = RecommendationsManager.get_recommendations_for_mood(last_mood.mood)
 
@@ -137,7 +165,9 @@ def mood_form():
             logger.info(f'Mood entry created by {current_user.username}: {mood_entry.mood}')
 
             # Получаем рекомендации для сохраненного настроения
-            recommendations = RecommendationsManager.get_recommendations_for_mood(form.mood.data)
+            recommendations = []
+            if RECOMMENDATIONS_AVAILABLE:
+                recommendations = RecommendationsManager.get_recommendations_for_mood(form.mood.data)
 
             # Создаем читаемое название настроения
             mood_translation = {
@@ -244,7 +274,7 @@ def stats():
 
         # Получаем рекомендации для самого частого настроения
         common_mood_recommendations = []
-        if most_common_mood:
+        if RECOMMENDATIONS_AVAILABLE and most_common_mood:
             common_mood_recommendations = RecommendationsManager.get_recommendations_for_mood(most_common_mood, limit=5)
 
         return render_template(
@@ -264,34 +294,162 @@ def stats():
         return redirect(url_for('main.dashboard'))
 
 
-@bp.route('/api/recommendations/<mood>')
-@login_required
-def get_recommendations(mood):
-    """API для получения рекомендаций по настроению"""
-    try:
-        recommendations = RecommendationsManager.get_recommendations_for_mood(mood)
-        return jsonify({
-            'success': True,
-            'mood': mood,
-            'recommendations': recommendations
-        })
-    except Exception as e:
+# Маршрут для рекомендаций (если модуль доступен)
+if RECOMMENDATIONS_AVAILABLE:
+    @bp.route('/recommendations')
+    @login_required
+    def recommendations_page():
+        """Страница со всеми рекомендациями"""
+        # Получаем все настроения с их рекомендациями
+        all_recommendations = {}
+        moods = RecommendationsManager.get_all_moods_with_recommendations()
+
+        for mood in moods:
+            all_recommendations[mood] = RecommendationsManager.get_recommendations_for_mood(mood, limit=10)
+
+        return render_template('recommendations.html',
+                               all_recommendations=all_recommendations)
+
+
+    @bp.route('/api/recommendations/<mood>')
+    @login_required
+    def get_recommendations(mood):
+        """API для получения рекомендаций по настроению"""
+        try:
+            recommendations = RecommendationsManager.get_recommendations_for_mood(mood)
+            return jsonify({
+                'success': True,
+                'mood': mood,
+                'recommendations': recommendations
+            })
+        except Exception as e:
+            return jsonify({
+                'success': False,
+                'error': str(e)
+            }), 500
+else:
+    # Если модуль рекомендаций недоступен, создаем заглушки
+    @bp.route('/recommendations')
+    @login_required
+    def recommendations_page():
+        flash('Функция рекомендаций временно недоступна', 'info')
+        return redirect(url_for('main.dashboard'))
+
+
+    @bp.route('/api/recommendations/<mood>')
+    @login_required
+    def get_recommendations(mood):
         return jsonify({
             'success': False,
-            'error': str(e)
-        }), 500
+            'error': 'Модуль рекомендаций недоступен'
+        }), 501
+
+# Маршруты для предсказаний
+if PREDICTIONS_AVAILABLE:
+    @bp.route('/prediction')
+    @login_required
+    def prediction():
+        """Страница для получения предсказания"""
+        try:
+            # Получаем случайное предсказание
+            prediction_obj, category_name = PredictionsManager.get_random_prediction()
+
+            # Если предсказаний нет в базе, пробуем инициализировать
+            if not prediction_obj:
+                try:
+                    PredictionsManager.initialize_default_predictions()
+                    prediction_obj, category_name = PredictionsManager.get_random_prediction()
+                except Exception as e:
+                    logger.error(f"Failed to initialize predictions: {str(e)}")
+                    flash('❌ Не удалось загрузить предсказания. Попробуйте позже.', 'danger')
+                    return redirect(url_for('main.dashboard'))
+
+            # Получаем все категории для фильтра
+            all_categories = PredictionsManager.get_all_categories()
+
+            return render_template(
+                'prediction.html',
+                prediction=prediction_obj,
+                category_name=category_name,
+                all_categories=all_categories
+            )
+        except Exception as e:
+            logger.error(f'Error in prediction route: {str(e)}')
+            flash('❌ Произошла ошибка при загрузке предсказания', 'danger')
+            return redirect(url_for('main.dashboard'))
 
 
-@bp.route('/recommendations')
-@login_required
-def recommendations_page():
-    """Страница со всеми рекомендациями"""
-    # Получаем все настроения с их рекомендациями
-    all_recommendations = {}
-    moods = RecommendationsManager.get_all_moods_with_recommendations()
+    @bp.route('/prediction/category/<category>')
+    @login_required
+    def prediction_by_category(category):
+        """Получить предсказание по конкретной категории"""
+        try:
+            prediction_obj, category_name = PredictionsManager.get_random_prediction(category)
 
-    for mood in moods:
-        all_recommendations[mood] = RecommendationsManager.get_recommendations_for_mood(mood, limit=10)
+            if not prediction_obj:
+                flash('Для этой категории пока нет предсказаний', 'info')
+                return redirect(url_for('main.prediction'))
 
-    return render_template('recommendations.html',
-                           all_recommendations=all_recommendations)
+            return render_template(
+                'prediction.html',
+                prediction=prediction_obj,
+                category_name=category_name,
+                all_categories=PredictionsManager.get_all_categories(),
+                selected_category=category
+            )
+        except Exception as e:
+            logger.error(f'Error in prediction_by_category route: {str(e)}')
+            flash('❌ Произошла ошибка при загрузке предсказания', 'danger')
+            return redirect(url_for('main.prediction'))
+
+
+    @bp.route('/api/prediction/random')
+    @login_required
+    def api_random_prediction():
+        """API для получения случайного предсказания"""
+        try:
+            prediction_obj, category_name = PredictionsManager.get_random_prediction()
+
+            if not prediction_obj:
+                return jsonify({
+                    'success': False,
+                    'message': 'Нет предсказаний'
+                })
+
+            return jsonify({
+                'success': True,
+                'prediction': {
+                    'id': prediction_obj.id,
+                    'text': prediction_obj.text,
+                    'category': prediction_obj.category,
+                    'category_name': category_name
+                }
+            })
+        except Exception as e:
+            return jsonify({
+                'success': False,
+                'error': str(e)
+            }), 500
+else:
+    # Если модуль предсказаний недоступен, создаем заглушки
+    @bp.route('/prediction')
+    @login_required
+    def prediction():
+        flash('Функция предсказаний временно недоступна', 'info')
+        return redirect(url_for('main.dashboard'))
+
+
+    @bp.route('/prediction/category/<category>')
+    @login_required
+    def prediction_by_category(category):
+        flash('Функция предсказаний временно недоступна', 'info')
+        return redirect(url_for('main.dashboard'))
+
+
+    @bp.route('/api/prediction/random')
+    @login_required
+    def api_random_prediction():
+        return jsonify({
+            'success': False,
+            'error': 'Модуль предсказаний недоступен'
+        }), 501

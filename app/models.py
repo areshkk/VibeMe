@@ -76,3 +76,15 @@ class Recommendation(db.Model):
 
     def __repr__(self):
         return f'<Recommendation for {self.mood}: {self.advice[:50]}...>'
+
+
+# ДОБАВИТЬ ЭТУ МОДЕЛЬ
+class Prediction(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    text = db.Column(db.String(500), nullable=False)
+    category = db.Column(db.String(50), nullable=False, index=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f'<Prediction {self.category}: {self.text[:50]}...>'
+        return f'<Recommendation for {self.mood}: {self.advice[:50]}...>'
