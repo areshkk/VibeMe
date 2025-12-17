@@ -6,46 +6,46 @@ class SecurityUtils:
     @staticmethod
     def is_strong_password(password):
         """
-        Проверка сложности пароля
+        Check password strength
         """
         if len(password) < 8:
-            return False, "Пароль должен быть не менее 8 символов"
+            return False, "Password must be at least 8 characters"
 
         if not re.search(r'[a-z]', password):
-            return False, "Пароль должен содержать хотя бы одну строчную букву"
+            return False, "Password must contain at least one lowercase letter"
 
         if not re.search(r'[A-Z]', password):
-            return False, "Пароль должен содержать хотя бы одну заглавную букву"
+            return False, "Password must contain at least one uppercase letter"
 
         if not re.search(r'\d', password):
-            return False, "Пароль должен содержать хотя бы одну цифру"
+            return False, "Password must contain at least one digit"
 
-        return True, "Пароль надежен"
+        return True, "Password is strong"
 
     @staticmethod
     def sanitize_input(text):
         """
-        Базовая очистка пользовательского ввода
+        Basic input sanitization
         """
         if not text:
             return text
 
-        # Удаляем потенциально опасные символы
+        # Remove potentially dangerous characters
         sanitized = re.sub(r'[<>&\"\']', '', text)
         return sanitized.strip()
 
     @staticmethod
     def validate_username(username):
         """
-        Валидация имени пользователя
+        Username validation
         """
         if not username:
-            return False, "Имя пользователя не может быть пустым"
+            return False, "Username cannot be empty"
 
         if len(username) < 3 or len(username) > 64:
-            return False, "Имя пользователя должно быть от 3 до 64 символов"
+            return False, "Username must be between 3 and 64 characters"
 
         if not re.match(r'^[A-Za-zА-Яа-я0-9_]+$', username):
-            return False, "Имя пользователя может содержать только буквы, цифры и подчеркивания"
+            return False, "Username can only contain letters, numbers and underscores"
 
-        return True, "Имя пользователя корректно"
+        return True, "Username is valid"

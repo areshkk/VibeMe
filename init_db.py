@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 """
-Скрипт для инициализации базы данных и рекомендаций.
-Запуск: python init_db.py
+Database and recommendations initialization script.
+Run: python init_db.py
 """
 
 import sys
 import os
 
-# Добавляем путь к проекту
+# Add project path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app import create_app, db
@@ -16,36 +16,36 @@ from app.models import Recommendation
 
 
 def main():
-    """Основная функция инициализации"""
-    print("🚀 Инициализация базы данных VibeMe...")
+    """Main initialization function"""
+    print("🚀 Initializing VibeMe database...")
 
-    # Создаем приложение
+    # Create app
     app = create_app()
 
     with app.app_context():
-        # Создаем все таблицы (если их нет)
+        # Create all tables (if not exist)
         db.create_all()
-        print("✅ Таблицы базы данных созданы")
+        print("✅ Database tables created")
 
-        # Инициализируем рекомендации по умолчанию
+        # Initialize default recommendations
         RecommendationsManager.initialize_default_recommendations()
 
-        # Показываем статистику
+        # Show statistics
         total_recs = Recommendation.query.count()
 
-        print(f"📊 Статистика рекомендаций:")
-        print(f"   • Всего рекомендаций в базе: {total_recs}")
+        print(f"📊 Recommendations statistics:")
+        print(f"   • Total recommendations in DB: {total_recs}")
 
         if total_recs > 0:
-            # Показываем рекомендации по настроениям
-            print("\n🎭 Рекомендации по настроениям:")
+            # Show recommendations by mood
+            print("\n🎭 Recommendations by mood:")
             moods = RecommendationsManager.get_all_moods_with_recommendations()
             for mood in moods:
                 count = Recommendation.query.filter_by(mood=mood).count()
-                print(f"   • {mood}: {count} рекомендаций")
+                print(f"   • {mood}: {count} recommendations")
 
-        print("\n✅ База данных успешно инициализирована!")
-        print("👉 Запустите приложение: python run.py")
+        print("\n✅ Database initialized successfully!")
+        print("👉 Run the app: python run.py")
 
 
 if __name__ == '__main__':

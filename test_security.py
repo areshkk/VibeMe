@@ -3,7 +3,7 @@ import os
 import sys
 from werkzeug.security import check_password_hash
 
-# Добавляем путь к проекту
+# Add project path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app import create_app, db
@@ -27,7 +27,7 @@ class SecurityTestCase(unittest.TestCase):
             db.drop_all()
 
     def test_password_hashing(self):
-        """Тестирование хеширования паролей"""
+        """Test password hashing"""
         with self.app.app_context():
             user = User(username='testuser', email='test@example.com')
             user.set_password('SecurePassword123')
@@ -35,46 +35,46 @@ class SecurityTestCase(unittest.TestCase):
             self.assertTrue(user.check_password('SecurePassword123'))
             self.assertFalse(user.check_password('WrongPassword'))
 
-            # Проверяем, что пароль действительно хешируется
+            # Check that password is actually hashed
             self.assertTrue(user.password_hash.startswith('pbkdf2:sha256:'))
             self.assertNotEqual(user.password_hash, 'SecurePassword123')
 
     def test_password_strength_validation(self):
-        """Тестирование проверки сложности пароля"""
+        """Test password strength validation"""
         with self.app.app_context():
             user = User(username='testuser2', email='test2@example.com')
 
-            # Слабый пароль - только цифры
+            # Weak password - only digits
             with self.assertRaises(ValueError):
                 user.set_password('12345678')
 
-            # Слабый пароль - только буквы
+            # Weak password - only letters
             with self.assertRaises(ValueError):
                 user.set_password('Password')
 
-            # Слабый пароль - без заглавных букв
+            # Weak password - no uppercase
             with self.assertRaises(ValueError):
                 user.set_password('password123')
 
-            # Слабый пароль - без цифр
+            # Weak password - no digits
             with self.assertRaises(ValueError):
                 user.set_password('Password')
 
-            # Короткий пароль
+            # Short password
             with self.assertRaises(ValueError):
                 user.set_password('Pass1')
 
-            # Хороший пароль
+            # Good password
             try:
                 user.set_password('SecurePassword123')
-                self.assertTrue(True)  # Если не было исключения
+                self.assertTrue(True)  # If no exception
             except ValueError:
                 self.fail("Valid password raised ValueError")
 
     def test_user_creation_validation(self):
-        """Тестирование валидации при создании пользователя"""
+        """Test validation on user creation"""
         with self.app.app_context():
-            # Корректный пользователь
+            # Valid user
             user = User(username='valid_user', email='valid@example.com')
             user.set_password('ValidPass123')
             db.session.add(user)
@@ -83,7 +83,7 @@ class SecurityTestCase(unittest.TestCase):
             self.assertIsNotNone(User.query.filter_by(username='valid_user').first())
 
     def test_email_normalization(self):
-        """Тестирование нормализации email"""
+        """Test email normalization"""
         with self.app.app_context():
             user = User(username='testuser3', email='  TEST@EXAMPLE.COM  ')
             user.set_password('TestPass123')

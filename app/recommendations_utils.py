@@ -4,133 +4,132 @@ from datetime import datetime
 
 
 class RecommendationsManager:
-    """Менеджер для работы с рекомендациями"""
+    """Manager for handling recommendations"""
 
-    # Словарь с рекомендациями по умолчанию (для начального заполнения)
+    # Default recommendations dictionary (for initial population)
     DEFAULT_RECOMMENDATIONS = {
         'happy': [
-            'Поделитесь своим счастьем с другими! 🌟',
-            'Запишите, что сделало вас счастливым сегодня',
-            'Сделайте что-то доброе для другого человека',
-            'Наслаждайтесь этим моментом и благодарите за него',
-            'Создайте "коллекцию счастливых моментов"'
+            'Share your happiness with others! 🌟',
+            'Write down what made you happy today',
+            'Do something kind for another person',
+            'Enjoy this moment and be grateful for it',
+            'Create a "collection of happy moments"'
         ],
         'calm': [
-            'Практикуйте глубокое дыхание 5 минут',
-            'Попробуйте медитацию для сохранения спокойствия',
-            'Наслаждайтесь тишиной и покоем',
-            'Погуляйте на природе в одиночестве',
-            'Заварите травяной чай и почитайте книгу'
+            'Practice deep breathing for 5 minutes',
+            'Try meditation to maintain calmness',
+            'Enjoy silence and peace',
+            'Take a solitary walk in nature',
+            'Brew some herbal tea and read a book'
         ],
         'neutral': [
-            'Попробуйте новое хобби или активность',
-            'Поставьте маленькую цель и достигните ее',
-            'Послушайте музыку, которая поднимает настроение',
-            'Встретьтесь с друзьями',
-            'Сделайте что-то необычное для разнообразия'
+            'Try a new hobby or activity',
+            'Set a small goal and achieve it',
+            'Listen to uplifting music',
+            'Meet up with friends',
+            'Do something unusual for variety'
         ],
         'sad': [
-            'Послушайте любимую музыку 🎵',
-            'Прогуляйтесь на свежем воздухе',
-            'Позвоните близкому человеку',
-            'Посмотрите любимый фильм или сериал',
-            'Напишите о своих чувствах в дневник'
+            'Listen to your favorite music 🎵',
+            'Take a walk in fresh air',
+            'Call a loved one',
+            'Watch a favorite movie or series',
+            'Write about your feelings in a journal'
         ],
         'angry': [
-            'Сделайте 10 глубоких вдохов и выдохов',
-            'Займитесь физической активностью',
-            'Выразите эмоции на бумаге, затем порвите ее',
-            'Отвлекитесь на 10 минут на другую задачу',
-            'Поговорите о проблеме с кем-то нейтральным'
+            'Take 10 deep breaths',
+            'Engage in physical activity',
+            'Express emotions on paper, then tear it up',
+            'Distract yourself with another task for 10 minutes',
+            'Talk about the problem with someone neutral'
         ],
         'anxious': [
-            'Попробуйте технику 5-4-3-2-1: назовите 5 вещей, которые видите, 4 - которые слышите, 3 - которые чувствуете, 2 - которые нюхаете, 1 - которую пробуете',
-            'Сделайте дыхательные упражнения',
-            'Составьте список того, что вы можете контролировать',
-            'Примите теплый душ или ванну',
-            'Практикуйте осознанность и заземление'
+            'Try the 5-4-3-2-1 technique: name 5 things you see, 4 you hear, 3 you feel, 2 you smell, 1 you taste',
+            'Do breathing exercises',
+            'Make a list of what you can control',
+            'Take a warm shower or bath',
+            'Practice mindfulness and grounding'
         ],
         'excited': [
-            'Направьте энергию на творческий проект',
-            'Поделитесь своим восторгом с друзьями',
-            'Запланируйте что-то веселое на будущее',
-            'Танцуйте под любимую музыку',
-            'Запишите свои идеи и планы'
+            'Channel your energy into a creative project',
+            'Share your excitement with friends',
+            'Plan something fun for the future',
+            'Dance to your favorite music',
+            'Write down your ideas and plans'
         ],
         'tired': [
-            'Отдохните 20-30 минут без гаджетов',
-            'Выпейте стакан воды и съешьте что-то легкое',
-            'Сделайте легкую растяжку',
-            'Послушайте расслабляющую музыку',
-            'Ложитесь спать на 30 минут раньше сегодня'
+            'Rest for 20-30 minutes without gadgets',
+            'Drink a glass of water and eat something light',
+            'Do light stretching',
+            'Listen to relaxing music',
+            'Go to bed 30 minutes earlier tonight'
         ]
     }
 
     @staticmethod
     def initialize_default_recommendations():
-        """Инициализация базы данных рекомендациями по умолчанию"""
+        """Initialize database with default recommendations"""
         try:
-            # Проверяем, есть ли уже рекомендации
+            # Check if recommendations already exist
             if Recommendation.query.first() is not None:
-                print("✅ Рекомендации уже инициализированы")
+                print("✅ Recommendations already initialized")
                 return
 
-            # Добавляем рекомендации по умолчанию
+            # Add default recommendations
             for mood, advice_list in RecommendationsManager.DEFAULT_RECOMMENDATIONS.items():
                 for i, advice in enumerate(advice_list, 1):
                     recommendation = Recommendation(
                         mood=mood,
                         advice=advice,
                         category='default',
-                        priority=i  # Первые рекомендации более приоритетные
+                        priority=i
                     )
                     db.session.add(recommendation)
 
             db.session.commit()
-            print(
-                f"✅ Инициализировано {len(RecommendationsManager.DEFAULT_RECOMMENDATIONS)} настроений с рекомендациями")
+            print(f"✅ Initialized {len(RecommendationsManager.DEFAULT_RECOMMENDATIONS)} moods with recommendations")
 
         except Exception as e:
             db.session.rollback()
-            print(f"❌ Ошибка при инициализации рекомендаций: {e}")
+            print(f"❌ Error initializing recommendations: {e}")
 
     @staticmethod
     def get_recommendations_for_mood(mood, limit=3):
-        """Получение рекомендаций для конкретного настроения"""
+        """Get recommendations for a specific mood"""
         try:
-            # Получаем рекомендации из базы данных
+            # Get recommendations from database
             recommendations = Recommendation.query.filter_by(
                 mood=mood
             ).order_by(Recommendation.priority.asc()).limit(limit).all()
 
-            # Если в базе нет рекомендаций, возвращаем дефолтные
+            # If no recommendations in DB, return defaults
             if not recommendations:
                 advice_list = RecommendationsManager.DEFAULT_RECOMMENDATIONS.get(mood, [])
                 return advice_list[:limit]
 
-            # Преобразуем объекты в строки
+            # Convert objects to strings
             return [rec.advice for rec in recommendations]
 
         except Exception as e:
-            print(f"❌ Ошибка при получении рекомендаций: {e}")
-            # Возвращаем дефолтные рекомендации в случае ошибки
+            print(f"❌ Error getting recommendations: {e}")
+            # Return default recommendations on error
             advice_list = RecommendationsManager.DEFAULT_RECOMMENDATIONS.get(mood, [])
             return advice_list[:limit]
 
     @staticmethod
     def get_all_moods_with_recommendations():
-        """Получение всех настроений с рекомендациями"""
+        """Get all moods that have recommendations"""
         try:
-            # Получаем уникальные настроения из базы
+            # Get unique moods from database
             moods = db.session.query(Recommendation.mood).distinct().all()
             return [mood[0] for mood in moods]
         except Exception as e:
-            print(f"❌ Ошибка при получении настроений: {e}")
+            print(f"❌ Error getting moods: {e}")
             return list(RecommendationsManager.DEFAULT_RECOMMENDATIONS.keys())
 
     @staticmethod
     def add_recommendation(mood, advice, category='custom', priority=1):
-        """Добавление новой рекомендации"""
+        """Add a new recommendation"""
         try:
             recommendation = Recommendation(
                 mood=mood,
@@ -140,7 +139,7 @@ class RecommendationsManager:
             )
             db.session.add(recommendation)
             db.session.commit()
-            return True, "✅ Рекомендация успешно добавлена"
+            return True, "✅ Recommendation added successfully"
         except Exception as e:
             db.session.rollback()
-            return False, f"❌ Ошибка при добавлении рекомендации: {e}"
+            return False, f"❌ Error adding recommendation: {e}"

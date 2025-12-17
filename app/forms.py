@@ -4,67 +4,67 @@ from wtforms.validators import DataRequired, Email, EqualTo, Length, ValidationE
 from app.models import User
 
 class RegistrationForm(FlaskForm):
-    username = StringField('Имя пользователя',
+    username = StringField('Username',
                           validators=[
-                              DataRequired(message='Это поле обязательно'),
-                              Length(min=3, max=64, message='Имя должно быть от 3 до 64 символов'),
+                              DataRequired(message='This field is required'),
+                              Length(min=3, max=64, message='Username must be between 3 and 64 characters'),
                               Regexp('^[A-Za-zА-Яа-я0-9_]+$',
-                                   message='Имя пользователя может содержать только буквы, цифры и подчеркивания')
+                                   message='Username can only contain letters, numbers and underscores')
                           ])
     email = StringField('Email',
                        validators=[
-                           DataRequired(message='Это поле обязательно'),
-                           Email(message='Введите корректный email адрес'),
-                           Length(max=120, message='Email не должен превышать 120 символов')
+                           DataRequired(message='This field is required'),
+                           Email(message='Please enter a valid email address'),
+                           Length(max=120, message='Email must not exceed 120 characters')
                        ])
-    password = PasswordField('Пароль',
+    password = PasswordField('Password',
                             validators=[
-                                DataRequired(message='Это поле обязательно'),
-                                Length(min=8, message='Пароль должен быть не менее 8 символов'),
+                                DataRequired(message='This field is required'),
+                                Length(min=8, message='Password must be at least 8 characters'),
                                 Regexp('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)',
-                                     message='Пароль должен содержать хотя бы одну заглавную букву, одну строчную и одну цифру')
+                                     message='Password must contain at least one uppercase letter, one lowercase letter and one digit')
                             ])
-    confirm_password = PasswordField('Подтвердите пароль',
-                                   validators=[DataRequired(message='Это поле обязательно'),
-                                               EqualTo('password', message='Пароли должны совпадать')])
-    submit = SubmitField('Зарегистрироваться')
+    confirm_password = PasswordField('Confirm Password',
+                                   validators=[DataRequired(message='This field is required'),
+                                               EqualTo('password', message='Passwords must match')])
+    submit = SubmitField('Register')
 
     def validate_username(self, username):
         user = User.query.filter_by(username=username.data).first()
         if user:
-            raise ValidationError('Это имя пользователя уже занято. Выберите другое.')
+            raise ValidationError('This username is already taken. Please choose another.')
 
     def validate_email(self, email):
         user = User.query.filter_by(email=email.data).first()
         if user:
-            raise ValidationError('Этот email уже зарегистрирован. Используйте другой.')
+            raise ValidationError('This email is already registered. Please use another.')
 
 class LoginForm(FlaskForm):
     email = StringField('Email',
                        validators=[
-                           DataRequired(message='Это поле обязательно'),
-                           Email(message='Введите корректный email адрес')
+                           DataRequired(message='This field is required'),
+                           Email(message='Please enter a valid email address')
                        ])
-    password = PasswordField('Пароль',
+    password = PasswordField('Password',
                             validators=[
-                                DataRequired(message='Это поле обязательно'),
-                                Length(min=1, message='Введите пароль')
+                                DataRequired(message='This field is required'),
+                                Length(min=1, message='Please enter your password')
                             ])
-    submit = SubmitField('Войти')
+    submit = SubmitField('Login')
 
 class MoodForm(FlaskForm):
-    mood = SelectField('Настроение',
+    mood = SelectField('Mood',
                       choices=[
-                          ('happy', '😊 Счастлив'),
-                          ('calm', '😌 Спокоен'),
-                          ('neutral', '😐 Нейтрален'),
-                          ('sad', '😔 Грустен'),
-                          ('angry', '😠 Сердит'),
-                          ('anxious', '😰 Тревожен'),
-                          ('excited', '🎉 В восторге'),
-                          ('tired', '😴 Устал')
+                          ('happy', '😊 Happy'),
+                          ('calm', '😌 Calm'),
+                          ('neutral', '😐 Neutral'),
+                          ('sad', '😔 Sad'),
+                          ('angry', '😠 Angry'),
+                          ('anxious', '😰 Anxious'),
+                          ('excited', '🎉 Excited'),
+                          ('tired', '😴 Tired')
                       ],
-                      validators=[DataRequired(message='Выберите ваше настроение')])
-    notes = TextAreaField('Заметки',
-                         validators=[Length(max=500, message='Заметка не должна превышать 500 символов')])
-    submit = SubmitField('Сохранить настроение')
+                      validators=[DataRequired(message='Please select your mood')])
+    notes = TextAreaField('Notes',
+                         validators=[Length(max=500, message='Note must not exceed 500 characters')])
+    submit = SubmitField('Save Mood')

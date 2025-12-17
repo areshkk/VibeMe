@@ -1,29 +1,29 @@
 {% extends "base.html" %}
 
-{% block title %}Статистика настроения - VibeMe{% endblock %}
+{% block title %}Mood Statistics - VibeMe{% endblock %}
 
 {% block content %}
 <div class="row">
     <div class="col-md-12">
         <div class="card card-custom mb-4">
             <div class="card-body">
-                <h2 class="mb-4">📊 Статистика вашего настроения</h2>
-                
-                <!-- Общая статистика -->
+                <h2 class="mb-4">📊 Your Mood Statistics</h2>
+
+                <!-- Overall statistics -->
                 <div class="row mb-4">
                     <div class="col-md-4">
                         <div class="card bg-light">
                             <div class="card-body text-center">
                                 <h3 class="display-6">{{ total_entries }}</h3>
-                                <p class="text-muted">Всего записей</p>
+                                <p class="text-muted">Total entries</p>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="card bg-light">
                             <div class="card-body text-center">
-                                <h3 class="display-6">{{ most_common_mood or 'Нет данных' }}</h3>
-                                <p class="text-muted">Самое частое настроение</p>
+                                <h3 class="display-6">{{ most_common_mood or 'No data' }}</h3>
+                                <p class="text-muted">Most frequent mood</p>
                             </div>
                         </div>
                     </div>
@@ -31,7 +31,7 @@
                         <div class="card bg-light">
                             <div class="card-body text-center">
                                 <h3 class="display-6">{{ mood_entries|length if mood_entries else 0 }}/10</h3>
-                                <p class="text-muted">Последние записи</p>
+                                <p class="text-muted">Recent entries</p>
                             </div>
                         </div>
                     </div>
@@ -41,13 +41,13 @@
     </div>
 </div>
 
-<!-- Рекомендации для самого частого настроения -->
+<!-- Recommendations for most frequent mood -->
 {% if common_mood_recommendations and most_common_mood %}
 <div class="row">
     <div class="col-md-12">
         <div class="card card-custom mb-4">
             <div class="card-body">
-                <h4 class="mb-3">💡 Рекомендации для вашего частого настроения "{{ most_common_mood }}"</h4>
+                <h4 class="mb-3">💡 Recommendations for your frequent mood "{{ most_common_mood }}"</h4>
                 <div class="row">
                     {% for advice in common_mood_recommendations %}
                     <div class="col-md-4 mb-2">
@@ -69,11 +69,11 @@
 {% endif %}
 
 <div class="row">
-    <!-- Круговая диаграмма -->
+    <!-- Pie chart -->
     <div class="col-md-6">
         <div class="card card-custom mb-4">
             <div class="card-body">
-                <h4 class="mb-3">📈 Распределение настроений</h4>
+                <h4 class="mb-3">📈 Mood Distribution</h4>
                 <div class="chart-container">
                     <canvas id="moodDistributionChart"></canvas>
                 </div>
@@ -81,11 +81,11 @@
         </div>
     </div>
 
-    <!-- Линейный график -->
+    <!-- Line chart -->
     <div class="col-md-6">
         <div class="card card-custom mb-4">
             <div class="card-body">
-                <h4 class="mb-3">📅 Изменение настроения во времени</h4>
+                <h4 class="mb-3">📅 Mood Over Time</h4>
                 <div class="chart-container">
                     <canvas id="moodTimelineChart"></canvas>
                 </div>
@@ -94,20 +94,20 @@
     </div>
 </div>
 
-<!-- Последние записи -->
+<!-- Recent entries -->
 <div class="row">
     <div class="col-md-12">
         <div class="card card-custom">
             <div class="card-body">
-                <h4 class="mb-3">📝 Последние записи</h4>
+                <h4 class="mb-3">📝 Recent Entries</h4>
                 {% if mood_entries %}
                     <div class="table-responsive">
                         <table class="table table-hover">
                             <thead>
                                 <tr>
-                                    <th>Дата</th>
-                                    <th>Настроение</th>
-                                    <th>Заметки</th>
+                                    <th>Date</th>
+                                    <th>Mood</th>
+                                    <th>Notes</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -115,14 +115,14 @@
                                 <tr>
                                     <td>{{ entry.timestamp.strftime('%d.%m.%Y %H:%M') }}</td>
                                     <td>
-                                        {% if entry.mood == 'happy' %}😊 Счастлив
-                                        {% elif entry.mood == 'calm' %}😌 Спокоен
-                                        {% elif entry.mood == 'neutral' %}😐 Нейтрален
-                                        {% elif entry.mood == 'sad' %}😔 Грустен
-                                        {% elif entry.mood == 'angry' %}😠 Сердит
-                                        {% elif entry.mood == 'anxious' %}😰 Тревожен
-                                        {% elif entry.mood == 'excited' %}🎉 В восторге
-                                        {% elif entry.mood == 'tired' %}😴 Устал
+                                        {% if entry.mood == 'happy' %}😊 Happy
+                                        {% elif entry.mood == 'calm' %}😌 Calm
+                                        {% elif entry.mood == 'neutral' %}😐 Neutral
+                                        {% elif entry.mood == 'sad' %}😔 Sad
+                                        {% elif entry.mood == 'angry' %}😠 Angry
+                                        {% elif entry.mood == 'anxious' %}😰 Anxious
+                                        {% elif entry.mood == 'excited' %}🎉 Excited
+                                        {% elif entry.mood == 'tired' %}😴 Tired
                                         {% else %}{{ entry.mood }}{% endif %}
                                     </td>
                                     <td>{{ entry.notes|truncate(50) if entry.notes else '-' }}</td>
@@ -132,18 +132,18 @@
                         </table>
                     </div>
                 {% else %}
-                    <p class="text-muted">У вас пока нет записей настроения.</p>
-                    <a href="{{ url_for('main.mood_form') }}" class="btn btn-custom">Создать первую запись</a>
+                    <p class="text-muted">You have no mood entries yet.</p>
+                    <a href="{{ url_for('main.mood_form') }}" class="btn btn-custom">Create first entry</a>
                 {% endif %}
             </div>
         </div>
     </div>
 </div>
 
-<!-- Кнопка возврата -->
+<!-- Back button -->
 <div class="row mt-4">
     <div class="col-md-12 text-center">
-        <a href="{{ url_for('main.dashboard') }}" class="btn btn-custom">← Назад в панель управления</a>
+        <a href="{{ url_for('main.dashboard') }}" class="btn btn-custom">← Back to Dashboard</a>
     </div>
 </div>
 
@@ -173,12 +173,12 @@
 {% block scripts %}
 {{ super() }}
 <script>
-// Данные для графиков из шаблона
+// Data for charts from template
 const chartLabels = {{ chart_labels|tojson }};
 const chartData = {{ chart_data|tojson }};
 const timelineData = {{ timeline_data|tojson }};
 
-// Цвета для графиков
+// Chart colors
 const chartColors = [
     '#FF6384', // happy
     '#36A2EB', // calm
@@ -190,7 +190,7 @@ const chartColors = [
     '#2E8B57'  // tired
 ];
 
-// 1. Круговая диаграмма распределения настроений
+// 1. Pie chart for mood distribution
 const distributionCtx = document.getElementById('moodDistributionChart').getContext('2d');
 const distributionChart = new Chart(distributionCtx, {
     type: 'pie',
@@ -221,7 +221,7 @@ const distributionChart = new Chart(distributionCtx, {
                         if (label) {
                             label += ': ';
                         }
-                        label += context.raw + ' записей';
+                        label += context.raw + ' entries';
                         return label;
                     }
                 }
@@ -230,9 +230,9 @@ const distributionChart = new Chart(distributionCtx, {
     }
 });
 
-// 2. Линейный график изменения настроения во времени
+// 2. Line chart for mood over time
 if (timelineData.length > 0) {
-    // Группируем данные по дате (среднее настроение за день)
+    // Group data by date (average mood per day)
     const groupedData = {};
     timelineData.forEach(entry => {
         if (!groupedData[entry.date]) {
@@ -242,7 +242,7 @@ if (timelineData.length > 0) {
             };
         }
 
-        // Преобразуем настроение в числовое значение для графика
+        // Convert mood to numeric value for chart
         const moodValues = {
             'happy': 1,
             'excited': 2,
@@ -258,7 +258,7 @@ if (timelineData.length > 0) {
         groupedData[entry.date].count++;
     });
 
-    // Подготавливаем данные для графика
+    // Prepare data for chart
     const timelineLabels = Object.keys(groupedData);
     const timelineAverages = timelineLabels.map(date => {
         const moods = groupedData[date].moods;
@@ -266,16 +266,16 @@ if (timelineData.length > 0) {
         return sum / moods.length;
     });
 
-    // Настраиваем шкалу Y с названиями настроений
+    // Y-axis labels with mood names
     const moodScaleLabels = {
-        1: '😊 Счастлив',
-        2: '🎉 В восторге',
-        3: '😌 Спокоен',
-        4: '😐 Нейтрален',
-        5: '😴 Устал',
-        6: '😔 Грустен',
-        7: '😰 Тревожен',
-        8: '😠 Сердит'
+        1: '😊 Happy',
+        2: '🎉 Excited',
+        3: '😌 Calm',
+        4: '😐 Neutral',
+        5: '😴 Tired',
+        6: '😔 Sad',
+        7: '😰 Anxious',
+        8: '😠 Angry'
     };
 
     const timelineCtx = document.getElementById('moodTimelineChart').getContext('2d');
@@ -284,7 +284,7 @@ if (timelineData.length > 0) {
         data: {
             labels: timelineLabels,
             datasets: [{
-                label: 'Уровень настроения',
+                label: 'Mood Level',
                 data: timelineAverages,
                 borderColor: 'rgba(177, 156, 217, 1)',
                 backgroundColor: 'rgba(177, 156, 217, 0.1)',
@@ -326,7 +326,7 @@ if (timelineData.length > 0) {
                             const mood = Object.keys(moodScaleLabels).find(key =>
                                 Math.abs(value - key) < 0.5
                             );
-                            return `Настроение: ${moodScaleLabels[mood] || 'Неизвестно'}`;
+                            return `Mood: ${moodScaleLabels[mood] || 'Unknown'}`;
                         }
                     }
                 }
@@ -335,7 +335,7 @@ if (timelineData.length > 0) {
     });
 } else {
     document.getElementById('moodTimelineChart').parentElement.innerHTML =
-        '<p class="text-muted">Недостаточно данных для построения графика. Добавьте больше записей!</p>';
+        '<p class="text-muted">Not enough data to build the chart. Add more entries!</p>';
 }
 </script>
 {% endblock %}

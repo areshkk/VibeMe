@@ -1,41 +1,41 @@
 {% extends "base.html" %}
 
-{% block title %}Панель управления - VibeMe{% endblock %}
+{% block title %}Dashboard - VibeMe{% endblock %}
 
 {% block content %}
 <div class="row">
     <div class="col-md-8">
         <div class="card card-custom">
             <div class="card-body">
-                <h2 class="mb-4">🌈 Добро пожаловать, {{ current_user.username }}!</h2>
-                <p class="lead">Как ты себя чувствуешь сегодня?</p>
-                
+                <h2 class="mb-4">🌈 Welcome, {{ current_user.username }}!</h2>
+                <p class="lead">How are you feeling today?</p>
+
                 <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4">
                     <a href="{{ url_for('main.mood_form') }}" class="btn btn-custom btn-lg">
-                        📝 Зафиксировать настроение
+                        📝 Log Mood
                     </a>
                     <a href="{{ url_for('main.stats') }}" class="btn btn-outline-secondary btn-lg">
-                        📈 Посмотреть статистику
+                        📈 View Statistics
                     </a>
                 </div>
             </div>
         </div>
 
-        <!-- Рекомендации на основе последнего настроения -->
+        <!-- Recommendations based on last mood -->
         {% if last_mood and recommendations %}
         <div class="card card-custom mt-4">
             <div class="card-body">
-                <h4 class="mb-3">💡 Персональные рекомендации</h4>
+                <h4 class="mb-3">💡 Personalized Recommendations</h4>
                 <p class="text-muted mb-3">
-                    На основе вашего последнего настроения:
-                    {% if last_mood.mood == 'happy' %}😊 Счастлив
-                    {% elif last_mood.mood == 'calm' %}😌 Спокоен
-                    {% elif last_mood.mood == 'neutral' %}😐 Нейтрален
-                    {% elif last_mood.mood == 'sad' %}😔 Грустен
-                    {% elif last_mood.mood == 'angry' %}😠 Сердит
-                    {% elif last_mood.mood == 'anxious' %}😰 Тревожен
-                    {% elif last_mood.mood == 'excited' %}🎉 В восторге
-                    {% elif last_mood.mood == 'tired' %}😴 Устал
+                    Based on your last mood:
+                    {% if last_mood.mood == 'happy' %}😊 Happy
+                    {% elif last_mood.mood == 'calm' %}😌 Calm
+                    {% elif last_mood.mood == 'neutral' %}😐 Neutral
+                    {% elif last_mood.mood == 'sad' %}😔 Sad
+                    {% elif last_mood.mood == 'angry' %}😠 Angry
+                    {% elif last_mood.mood == 'anxious' %}😰 Anxious
+                    {% elif last_mood.mood == 'excited' %}🎉 Excited
+                    {% elif last_mood.mood == 'tired' %}😴 Tired
                     {% else %}{{ last_mood.mood }}{% endif %}
                 </p>
 
@@ -56,31 +56,31 @@
 
                 <div class="text-center mt-3">
                     <a href="{{ url_for('main.recommendations_page') }}" class="btn btn-outline-primary btn-sm">
-                        Посмотреть все рекомендации
+                        View all recommendations
                     </a>
                 </div>
             </div>
         </div>
         {% endif %}
 
-        <!-- Последние записи настроения -->
+        <!-- Recent mood entries -->
         <div class="card card-custom mt-4">
             <div class="card-body">
-                <h4 class="mb-3">📋 Последние записи</h4>
+                <h4 class="mb-3">📋 Recent Entries</h4>
                 {% if recent_moods %}
                     <div class="list-group">
                         {% for mood in recent_moods %}
                         <div class="list-group-item">
                             <div class="d-flex w-100 justify-content-between">
                                 <h6 class="mb-1">
-                                    {% if mood.mood == 'happy' %}😊 Счастлив
-                                    {% elif mood.mood == 'calm' %}😌 Спокоен
-                                    {% elif mood.mood == 'neutral' %}😐 Нейтрален
-                                    {% elif mood.mood == 'sad' %}😔 Грустен
-                                    {% elif mood.mood == 'angry' %}😠 Сердит
-                                    {% elif mood.mood == 'anxious' %}😰 Тревожен
-                                    {% elif mood.mood == 'excited' %}🎉 В восторге
-                                    {% elif mood.mood == 'tired' %}😴 Устал
+                                    {% if mood.mood == 'happy' %}😊 Happy
+                                    {% elif mood.mood == 'calm' %}😌 Calm
+                                    {% elif mood.mood == 'neutral' %}😐 Neutral
+                                    {% elif mood.mood == 'sad' %}😔 Sad
+                                    {% elif mood.mood == 'angry' %}😠 Angry
+                                    {% elif mood.mood == 'anxious' %}😰 Anxious
+                                    {% elif mood.mood == 'excited' %}🎉 Excited
+                                    {% elif mood.mood == 'tired' %}😴 Tired
                                     {% else %}{{ mood.mood }}{% endif %}
                                 </h6>
                                 <small class="text-muted">{{ mood.timestamp.strftime('%d.%m.%Y %H:%M') }}</small>
@@ -92,8 +92,8 @@
                         {% endfor %}
                     </div>
                 {% else %}
-                    <p class="text-muted">У вас пока нет записей настроения.</p>
-                    <a href="{{ url_for('main.mood_form') }}" class="btn btn-custom">Создать первую запись</a>
+                    <p class="text-muted">You have no mood entries yet.</p>
+                    <a href="{{ url_for('main.mood_form') }}" class="btn btn-custom">Create first entry</a>
                 {% endif %}
             </div>
         </div>
@@ -102,22 +102,22 @@
     <div class="col-md-4">
         <div class="card card-custom">
             <div class="card-body text-center">
-                <h5>📊 Быстрый доступ</h5>
+                <h5>📊 Quick Access</h5>
                 <div class="d-grid gap-2">
-                    <a href="{{ url_for('main.stats') }}" class="btn btn-custom">Статистика настроения</a>
-                    <a href="{{ url_for('main.mood_form') }}" class="btn btn-outline-secondary">Новая запись</a>
-                    <a href="{{ url_for('main.recommendations_page') }}" class="btn btn-outline-primary">Все рекомендации</a>
+                    <a href="{{ url_for('main.stats') }}" class="btn btn-custom">Mood Statistics</a>
+                    <a href="{{ url_for('main.mood_form') }}" class="btn btn-outline-secondary">New Entry</a>
+                    <a href="{{ url_for('main.recommendations_page') }}" class="btn btn-outline-primary">All Recommendations</a>
                 </div>
             </div>
         </div>
-        
+
         <div class="card card-custom mt-4">
             <div class="card-body text-center">
-                <h5>👤 Профиль</h5>
+                <h5>👤 Profile</h5>
                 <p><strong>{{ current_user.username }}</strong></p>
                 <p class="text-muted">{{ current_user.email }}</p>
-                <a href="{{ url_for('main.profile') }}" class="btn btn-outline-secondary btn-sm">Редактировать профиль</a>
-                <a href="{{ url_for('main.logout') }}" class="btn btn-outline-danger btn-sm mt-2">Выйти</a>
+                <a href="{{ url_for('main.profile') }}" class="btn btn-outline-secondary btn-sm">Edit Profile</a>
+                <a href="{{ url_for('main.logout') }}" class="btn btn-outline-danger btn-sm mt-2">Logout</a>
             </div>
         </div>
     </div>

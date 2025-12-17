@@ -16,23 +16,23 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(120), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(128))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    # Связь "один ко многим" с MoodEntry
+    # One-to-many relationship with MoodEntry
     mood_entries = db.relationship('MoodEntry', backref='author', lazy='dynamic', cascade='all, delete-orphan')
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
-        # Дополнительная валидация при создании
+        # Additional validation on creation
         if self.email:
             self.email = self.email.lower().strip()
         if self.username:
             self.username = self.username.strip()
 
     def set_password(self, password):
-        """Хеширование пароля с использованием современного алгоритма"""
+        """Hash password using modern algorithm"""
         if len(password) < 8:
-            raise ValueError('Пароль должен быть не менее 8 символов')
+            raise ValueError('Password must be at least 8 characters')
         if not re.match(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)', password):
-            raise ValueError('Пароль должен содержать хотя бы одну заглавную букву, одну строчную и одну цифру')
+            raise ValueError('Password must contain at least one uppercase letter, one lowercase letter and one digit')
 
         self.password_hash = generate_password_hash(
             password,
@@ -41,7 +41,7 @@ class User(db.Model, UserMixin):
         )
 
     def check_password(self, password):
-        """Проверка пароля"""
+        """Check password"""
         return check_password_hash(self.password_hash, password)
 
     def __repr__(self):
@@ -57,7 +57,7 @@ class MoodEntry(db.Model):
 
     def __init__(self, **kwargs):
         super(MoodEntry, self).__init__(**kwargs)
-        # Валидация настроения
+        # Mood validation
         valid_moods = ['happy', 'calm', 'neutral', 'sad', 'angry', 'anxious', 'excited', 'tired']
         if self.mood and self.mood not in valid_moods:
             raise ValueError(f"Invalid mood: {self.mood}")
@@ -71,8 +71,18 @@ class Recommendation(db.Model):
     mood = db.Column(db.String(50), nullable=False, index=True)
     advice = db.Column(db.String(500), nullable=False)
     category = db.Column(db.String(50), default='general')
-    priority = db.Column(db.Integer, default=1)  # Приоритет от 1 (высокий) до 5 (низкий)
+    priority = db.Column(db.Integer, default=1)  # Priority from 1 (high) to 5 (low)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):
         return f'<Recommendation for {self.mood}: {self.advice[:50]}...>'
+
+
+class Prediction(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    text = db.Column(db.String(500), nullable=False)
+    category = db.Column(db.String(50), nullable=False, index=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f'<Prediction {self.category}: {self.text[:50]}...>'

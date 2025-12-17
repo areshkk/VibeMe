@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}Daily Prediction - VibeMe{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card card-custom">
+            <div class="card-body p-5 text-center">
+                <h2 class="mb-4">🔮 Daily Prediction</h2>
+                <p class="text-muted mb-4">Get your prediction for today!</p>
+
+                <!-- Button to get prediction -->
+                <div class="mb-5">
+                    <a href="{{ url_for('main.prediction') }}" class="btn btn-custom btn-lg">
+                        🎲 Get Prediction
+                    </a>
+                    <p class="text-muted mt-2">
+                        Click the button to get a random prediction
+                    </p>
+                </div>
+
+                <!-- Display prediction -->
+                {% if prediction %}
+                <div class="prediction-card mb-5">
+                    <div class="category-badge mb-3">
+                        <span class="badge bg-purple">{{ category_name }}</span>
+                    </div>
+
+                    <div class="prediction-text mb-4">
+                        "{{ prediction.text }}"
+                    </div>
+
+                    <div class="prediction-actions mt-4">
+                        <button onclick="copyPrediction()" class="btn btn-outline-secondary btn-sm">
+                            📋 Copy
+                        </button>
+                        <button onclick="sharePrediction()" class="btn btn-outline-primary btn-sm ms-2">
+                            📤 Share
+                        </button>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Category filter -->
+                <div class="mb-5">
+                    <h5 class="mb-3">🎯 Choose Category</h5>
+                    <div class="row g-2">
+                        {% for key, value in all_categories.items() %}
+                        <div class="col-6 col-md-4 col-lg-3">
+                            <a href="{{ url_for('main.prediction_by_category', category=key) }}"
+                               class="btn btn-outline-secondary w-100 {% if selected_category == key %}active{% endif %}">
+                                {{ value }}
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Information about predictions -->
+                <div class="row text-center">
+                    <div class="col-md-4 mb-3">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h5>{{ all_categories|length }}</h5>
+                                <p class="text-muted mb-0">Categories</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h5>∞</h5>
+                                <p class="text-muted mb-0">Attempts per day</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h5>🎲</h5>
+                                <p class="text-muted mb-0">Random selection</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function copyPrediction() {
+    const predictionText = document.querySelector('.prediction-text').textContent;
+    navigator.clipboard.writeText(predictionText).then(() => {
+        alert('Prediction copied to clipboard!');
+    }).catch(err => {
+        console.error('Copy failed: ', err);
+    });
+}
+
+function sharePrediction() {
+    const predictionText = document.querySelector('.prediction-text').textContent;
+    const shareText = `My prediction for today: ${predictionText} #VibeMe`;
+
+    if (navigator.share) {
+        navigator.share({
+            title: 'My Daily Prediction',
+            text: shareText,
+            url: window.location.href
+        });
+    } else {
+        navigator.clipboard.writeText(shareText).then(() => {
+            alert('Prediction copied for sharing!');
+        }).catch(err => {
+            console.error('Copy failed: ', err);
+        });
+    }
+}
+</script>
+{% endblock %}

@@ -1,19 +1,19 @@
 {% extends "base.html" %}
 
-{% block title %}Главная - VibeMe{% endblock %}
+{% block title %}Home - VibeMe{% endblock %}
 
 {% block content %}
 <div class="hero-section text-center">
     <div class="row align-items-center">
         <div class="col-lg-8 mx-auto">
-            <h1 class="display-4 fw-bold mb-4">Добро пожаловать в VibeMe! 🌈</h1>
-            <p class="lead mb-4">Твое личное пространство для отслеживания настроения, поиска гармонии и заботы о себе.</p>
+            <h1 class="display-4 fw-bold mb-4">Welcome to VibeMe! 🌈</h1>
+            <p class="lead mb-4">Your personal space for mood tracking, finding harmony, and self-care.</p>
             <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
                 <a href="{{ url_for('main.register') }}" class="btn btn-custom btn-lg px-4 gap-3">
-                    Начать путешествие ✨
+                    Start Journey ✨
                 </a>
                 <a href="{{ url_for('main.login') }}" class="btn btn-outline-secondary btn-lg px-4">
-                    Уже с нами? Войти
+                    Already with us? Login
                 </a>
             </div>
         </div>
@@ -25,8 +25,8 @@
         <div class="card card-custom h-100 text-center">
             <div class="card-body">
                 <div class="mb-3">🎭</div>
-                <h5 class="card-title">Отслеживай настроение</h5>
-                <p class="card-text">Фиксируй свои эмоции в течение дня и находи закономерности.</p>
+                <h5 class="card-title">Track Mood</h5>
+                <p class="card-text">Record your emotions throughout the day and discover patterns.</p>
             </div>
         </div>
     </div>
@@ -34,8 +34,8 @@
         <div class="card card-custom h-100 text-center">
             <div class="card-body">
                 <div class="mb-3">📊</div>
-                <h5 class="card-title">Анализируй статистику</h5>
-                <p class="card-text">Наглядные графики помогут понять твое эмоциональное состояние.</p>
+                <h5 class="card-title">Analyze Statistics</h5>
+                <p class="card-text">Visual graphs help you understand your emotional state.</p>
             </div>
         </div>
     </div>
@@ -43,8 +43,8 @@
         <div class="card card-custom h-100 text-center">
             <div class="card-body">
                 <div class="mb-3">💫</div>
-                <h5 class="card-title">Получай рекомендации</h5>
-                <p class="card-text">Персональные советы для улучшения настроения и самочувствия.</p>
+                <h5 class="card-title">Get Recommendations</h5>
+                <p class="card-text">Personalized tips to improve your mood and well-being.</p>
             </div>
         </div>
     </div>

@@ -1,26 +1,26 @@
 {% extends "base.html" %}
 
-{% block title %}Отслеживание настроения - VibeMe{% endblock %}
+{% block title %}Mood Tracking - VibeMe{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-md-8">
         <div class="card card-custom">
             <div class="card-body p-5">
-                <h2 class="text-center mb-4">Как ты себя чувствуешь? 🌟</h2>
-                <p class="text-center text-muted mb-4">Выбери эмоцию и поделись своими мыслями</p>
-                
+                <h2 class="text-center mb-4">How are you feeling? 🌟</h2>
+                <p class="text-center text-muted mb-4">Choose an emotion and share your thoughts</p>
+
                 <form method="POST" action="">
                     {{ form.hidden_tag() }}
-                    
+
                     <!-- Emotion Selection -->
                     <div class="mb-4">
                         {{ form.mood.label(class="form-label fw-bold mb-3") }}
                         <div class="row g-3">
                             {% for value, label in form.mood.choices %}
                             <div class="col-4 col-sm-3">
-                                <input type="radio" class="btn-check mood-option" name="mood" 
-                                       id="mood_{{ value }}" value="{{ value }}" 
+                                <input type="radio" class="btn-check mood-option" name="mood"
+                                       id="mood_{{ value }}" value="{{ value }}"
                                        {% if form.mood.data == value %}checked{% endif %}>
                                 <label class="btn btn-outline-primary w-100 h-100 p-3" for="mood_{{ value }}">
                                     <div>{{ label.split(' ')[0] }}</div>
@@ -33,28 +33,28 @@
                             <div class="text-danger small">{{ error }}</div>
                         {% endfor %}
                     </div>
-                    
+
                     <!-- Notes Field -->
                     <div class="mb-4">
                         {{ form.notes.label(class="form-label fw-bold") }}
-                        {{ form.notes(class="form-control", rows="4", 
-                                    placeholder="Расскажи о своем дне, что повлияло на твое настроение, или просто поделись мыслями...") }}
+                        {{ form.notes(class="form-control", rows="4",
+                                    placeholder="Tell about your day, what affected your mood, or just share your thoughts...") }}
                         {% for error in form.notes.errors %}
                             <div class="text-danger small">{{ error }}</div>
                         {% endfor %}
                     </div>
-                    
+
                     <!-- Submit Button -->
                     <div class="d-grid">
                         {{ form.submit(class="btn btn-custom btn-lg") }}
                     </div>
                 </form>
 
-                <!-- Рекомендации после сохранения -->
+                <!-- Recommendations after saving -->
                 {% if show_recommendations and recommendations %}
                 <div class="mt-5 pt-4 border-top">
-                    <h4 class="text-center mb-4">💡 Рекомендации для настроения "{{ saved_mood }}"</h4>
-                    <p class="text-center text-muted mb-4">Вот что может помочь:</p>
+                    <h4 class="text-center mb-4">💡 Recommendations for "{{ saved_mood }}" mood</h4>
+                    <p class="text-center text-muted mb-4">Here's what might help:</p>
 
                     <div class="row">
                         {% for advice in recommendations %}
@@ -72,8 +72,8 @@
                     </div>
 
                     <div class="text-center mt-4">
-                        <a href="{{ url_for('main.dashboard') }}" class="btn btn-custom me-2">Перейти в панель управления</a>
-                        <a href="{{ url_for('main.mood_form') }}" class="btn btn-outline-secondary">Добавить еще одно настроение</a>
+                        <a href="{{ url_for('main.dashboard') }}" class="btn btn-custom me-2">Go to Dashboard</a>
+                        <a href="{{ url_for('main.mood_form') }}" class="btn btn-outline-secondary">Add Another Mood</a>
                     </div>
                 </div>
                 {% endif %}
