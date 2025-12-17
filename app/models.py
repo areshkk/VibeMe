@@ -87,3 +87,4 @@ class Prediction(db.Model):
 
     def __repr__(self):
         return f'<Prediction {self.category}: {self.text[:50]}...>'
+        return f'<Recommendation for {self.mood}: {self.advice[:50]}...>'
